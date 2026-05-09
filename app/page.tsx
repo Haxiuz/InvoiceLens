@@ -380,7 +380,7 @@ export default function Home() {
                     Drop invoice here
                   </p>
                   <p style={{ color: "var(--text-3)", fontSize: 12 }}>or click to browse</p>
-                  <p style={{ color: "var(--text-3)", fontSize: 11, marginTop: 12 }}>JPG • PNG • WebP • HEIC · up to 20MB</p>
+                  <p style={{ color: "var(--text-3)", fontSize: 11, marginTop: 12 }}>JPG • PNG • WebP • HEIC • PDF · auto-compressed</p>
                 </div>
               ) : (
                 <div style={{ width: "100%", position: "relative" }}>
