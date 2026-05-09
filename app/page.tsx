@@ -118,6 +118,8 @@ function Card({ children, className = "", style = {}, delay = 0 }: {
         padding: "24px",
         boxShadow: "var(--shadow-sm)",
         animationDelay: `${delay}s`,
+        overflow: "hidden",
+        minWidth: 0,
         ...style,
       }}
     >
@@ -128,9 +130,17 @@ function Card({ children, className = "", style = {}, delay = 0 }: {
 
 function FieldRow({ label, value, mono = false }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
       <span style={{ color: "var(--text-3)", fontSize: 12, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em", flexShrink: 0 }}>{label}</span>
-      <span style={{ color: "var(--text-1)", fontFamily: mono ? "var(--font-mono, monospace)" : undefined, fontSize: 13, textAlign: "right" }}>
+      <span style={{
+        color: "var(--text-1)",
+        fontFamily: mono ? "var(--font-mono, monospace)" : undefined,
+        fontSize: 13,
+        textAlign: "right",
+        minWidth: 0,
+        wordBreak: "break-word",
+        overflowWrap: "anywhere",
+      }}>
         {value ?? <span style={{ color: "var(--text-3)" }}>—</span>}
       </span>
     </div>
@@ -588,7 +598,7 @@ export default function Home() {
 
             {state === "done" && data && (
               <>
-                {/* Success badge */}
+                {/* Success badge + actions */}
                 <div className="anim-fade-in" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <Badge color="success">✅ Extraction complete</Badge>
                   <button id="scan-another-btn" onClick={reset} style={{
@@ -599,7 +609,7 @@ export default function Home() {
                   <button id="save-history-btn" onClick={handleSave} style={{
                     background: "var(--surface-3)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
                     color: "var(--text-1)", padding: "5px 14px", fontSize: 12, cursor: "pointer",
-                    transition: "all var(--t)", marginLeft: "auto", fontWeight: 600,
+                    transition: "all var(--t)", fontWeight: 600,
                     display: "flex", alignItems: "center", gap: 6,
                   }}><Save size={13} /> Save to History</button>
                 </div>
