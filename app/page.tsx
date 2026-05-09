@@ -2,6 +2,10 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import {
+  FileText, BarChart2, FolderOpen, Camera, Search, Building2,
+  ClipboardList, Package, DollarSign, AlertTriangle, Frown, Save, Sparkles
+} from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────── */
 interface LineItem {
@@ -294,7 +298,8 @@ export default function Home() {
         </div>
 
         {/* ── TWO-COLUMN LAYOUT ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.4fr)", gap: 20, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.4fr)", gap: 20, alignItems: "start" }}
+          className="scan-grid">
 
           {/* ── LEFT: UPLOAD ── */}
           <div className="anim-fade-up d-3" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -322,7 +327,8 @@ export default function Home() {
             >
               {!file ? (
                 <div style={{ textAlign: "center", padding: 40 }}>
-                  <div className="anim-float" style={{ fontSize: 44, marginBottom: 16 }}>📄</div>
+                <div className="anim-float" style={{ marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <FileText size={44} strokeWidth={1.2} color="var(--accent-2)" /></div>
                   <p style={{ fontWeight: 600, color: "var(--text-1)", marginBottom: 6, fontSize: 15 }}>
                     Drop invoice here
                   </p>
@@ -393,7 +399,8 @@ export default function Home() {
                     (e.currentTarget as HTMLButtonElement).style.color = "var(--text-2)";
                   }}
                 >
-                  📁 Browse
+                  <FolderOpen size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
+                  Browse
                 </button>
                 <button
                   id="camera-btn"
@@ -413,7 +420,8 @@ export default function Home() {
                     (e.currentTarget as HTMLButtonElement).style.color = "var(--text-2)";
                   }}
                 >
-                  📸 Take Photo
+                  <Camera size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
+                  Take Photo
                 </button>
               </div>
             )}
@@ -471,7 +479,7 @@ export default function Home() {
                     Scanning…
                   </>
                 ) : (
-                  <>🔍 Extract Invoice Data</>
+                  <><Search size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />Extract Invoice Data</>
                 )}
               </button>
             )}
@@ -501,7 +509,7 @@ export default function Home() {
                 background: "var(--surface)",
                 border: "1px dashed var(--border)", borderRadius: "var(--radius-lg)",
               }}>
-                <div style={{ fontSize: 52 }}>📊</div>
+                <div style={{ marginBottom: 12 }}><BarChart2 size={52} strokeWidth={1.2} color="var(--text-3)" /></div>
                 <p style={{ color: "var(--text-3)", fontSize: 14, maxWidth: 260 }}>
                   Your extracted invoice data will appear here after scanning
                 </p>
@@ -521,7 +529,7 @@ export default function Home() {
                 minHeight: 300, justifyContent: "center", textAlign: "center",
                 border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 40,
               }}>
-                <span style={{ fontSize: 44 }}>😕</span>
+                <Frown size={44} strokeWidth={1.2} color="var(--danger)" style={{ marginBottom: 4 }} />
                 <p style={{ color: "var(--danger)", fontWeight: 600 }}>Extraction failed</p>
                 <p style={{ color: "var(--text-3)", fontSize: 13, maxWidth: 320 }}>{error}</p>
                 <button id="retry-btn" onClick={reset} style={{
@@ -544,14 +552,15 @@ export default function Home() {
                   <button id="save-history-btn" onClick={handleSave} style={{
                     background: "var(--surface-3)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
                     color: "var(--text-1)", padding: "5px 14px", fontSize: 12, cursor: "pointer",
-                    transition: "all var(--t)", marginLeft: "auto", fontWeight: 600
-                  }}>💾 Save to History</button>
+                    transition: "all var(--t)", marginLeft: "auto", fontWeight: 600,
+                    display: "flex", alignItems: "center", gap: 6,
+                  }}><Save size={13} /> Save to History</button>
                 </div>
 
                 {/* Vendor card */}
                 <Card delay={0.04} style={{ borderColor: "var(--border-lit)", boxShadow: "var(--shadow-glow)" }}>
-                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
-                    🏢 Vendor
+                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Building2 size={14} /> Vendor
                   </h2>
                   <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>
                     {data.vendor_name ?? <span style={{ color: "var(--text-3)" }}>Unknown Vendor</span>}
@@ -563,8 +572,8 @@ export default function Home() {
 
                 {/* Invoice details */}
                 <Card delay={0.08}>
-                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
-                    📋 Invoice Details
+                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                    <ClipboardList size={14} /> Invoice Details
                   </h2>
                   <FieldRow label="Invoice #"      value={data.invoice_number} mono />
                   <FieldRow label="Invoice Date"   value={data.invoice_date} />
@@ -580,8 +589,8 @@ export default function Home() {
                 {/* Line items */}
                 {data.line_items && data.line_items.length > 0 && (
                   <Card delay={0.12}>
-                    <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
-                      📦 Line Items
+                    <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Package size={14} /> Line Items
                     </h2>
                     <div style={{ overflowX: "auto" }}>
                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -611,8 +620,8 @@ export default function Home() {
 
                 {/* Totals */}
                 <Card delay={0.16} style={{ background: "linear-gradient(135deg, rgba(124,110,247,0.08) 0%, var(--surface) 100%)" }}>
-                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
-                    💰 Totals
+                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                    <DollarSign size={14} /> Totals
                   </h2>
                   <FieldRow label="Subtotal" value={fmt(data.subtotal, data.currency ?? "USD")} />
                   <FieldRow label="Tax"      value={fmt(data.tax_amount, data.currency ?? "USD")} />
@@ -631,8 +640,8 @@ export default function Home() {
                 {/* Anomalies */}
                 {data.anomalies && data.anomalies.length > 0 && (
                   <Card delay={0.20} style={{ borderColor: "rgba(251,191,36,0.25)" }}>
-                    <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--warning)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
-                      ⚠️ Anomalies Detected
+                    <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--warning)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <AlertTriangle size={14} /> Anomalies Detected
                     </h2>
                     {data.anomalies.map((a, i) => (
                       <div key={i} style={{

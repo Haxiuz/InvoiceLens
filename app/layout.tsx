@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./components/AuthProvider";
 import Header from "./components/Header";
-import BottomNav from "./components/BottomNav";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -61,7 +60,6 @@ export default function RootLayout({
           <ThemeProvider>
             <Header />
             {children}
-            <BottomNav />
           </ThemeProvider>
         </AuthProvider>
 

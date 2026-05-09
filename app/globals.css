@@ -302,9 +302,7 @@ body {
   }
 
   /* Push page content up so it doesn't hide behind the bottom nav */
-  body {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom));
-  }
+  /* body padding removed — bottom nav was removed */
 
   /* Compress the header on mobile */
   header {
@@ -324,6 +322,11 @@ body {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Main scan page: stack two columns to single column */
+  .scan-grid {
+    grid-template-columns: 1fr !important;
   }
 
   /* Invoice history — stack rows as cards on very small screens */
