@@ -52,6 +52,43 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
+/**
+ * Compress an image file using Canvas API.
+ * Resizes to max 1600px on the longest side and re-encodes as JPEG at 82% quality.
+ * This keeps the base64 payload well under Vercel's 4.5 MB request limit.
+ */
+function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      // Scale down if needed
+      if (width > maxDim || height > maxDim) {
+        if (width >= height) { height = Math.round((height / width) * maxDim); width = maxDim; }
+        else { width = Math.round((width / height) * maxDim); height = maxDim; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(file); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        quality
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Failed to load image")); };
+    img.src = url;
+  });
+}
+
 /* ─── Sub-components ────────────────────────────────────── */
 
 function Badge({ color, children }: { color: "success" | "warning" | "danger" | "neutral"; children: React.ReactNode }) {
@@ -139,22 +176,32 @@ export default function Home() {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [state]);
 
-  /* Handle file selection */
-  const handleFile = useCallback((f: File) => {
-    const allowed = ["image/jpeg", "image/png", "image/webp", "image/heic"];
+  const handleFile = useCallback(async (f: File) => {
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"];
     if (!allowed.includes(f.type)) {
-      setError("Please upload a JPG, PNG, WebP, or HEIC image of your invoice.");
+      setError("Please upload a JPG, PNG, WebP, HEIC, or PDF file.");
       return;
     }
     if (f.size > 20 * 1024 * 1024) {
       setError("File must be under 20 MB.");
       return;
     }
-    setFile(f);
+    setError("");
     setData(null);
     setState("idle");
-    setError("");
-    const url = URL.createObjectURL(f);
+
+    // Compress images before storing (skips PDFs)
+    let processed = f;
+    if (f.type.startsWith("image/")) {
+      try {
+        processed = await compressImage(f);
+      } catch {
+        processed = f; // fallback to original if compression fails
+      }
+    }
+
+    setFile(processed);
+    const url = URL.createObjectURL(processed);
     setPreview(url);
   }, []);
 
@@ -373,7 +420,7 @@ export default function Home() {
               ref={fileInputRef}
               id="file-input"
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/heic"
+              accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
               onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
               style={{ display: "none" }}
             />
