@@ -287,3 +287,120 @@ body {
   --border-lit: #000000;
   --shadow-sm: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
+
+/* ─── MOBILE / PWA ──────────────────────────────────────────── */
+
+/* Hide bottom nav on desktop */
+.bottom-nav {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  /* Show bottom nav on mobile */
+  .bottom-nav {
+    display: flex !important;
+  }
+
+  /* Push page content up so it doesn't hide behind the bottom nav */
+  body {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+
+  /* Compress the header on mobile */
+  header {
+    padding: 0 16px !important;
+  }
+
+  /* General page padding */
+  main,
+  [class*="page-"],
+  div[style*="max-width: 1100"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Tables: scroll horizontally on narrow screens */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Invoice history — stack rows as cards on very small screens */
+  .history-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Card grid: wrap into 2 columns on small screens */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Sidebar backdrop ensures close tap works on mobile */
+  .sidebar-backdrop {
+    display: block;
+  }
+
+  /* Report tabs — horizontal scroll on mobile */
+  .report-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .report-tabs::-webkit-scrollbar { display: none; }
+
+  /* Profile page: single column on mobile */
+  .profile-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Upload zone: larger touch target */
+  .upload-zone {
+    padding: 32px 20px !important;
+    min-height: 200px !important;
+  }
+
+  /* Larger tap targets for buttons */
+  button, a[role="button"] {
+    min-height: 40px;
+  }
+
+  /* Hide text labels in header (just show icon + logo on narrow) */
+  .header-user-name {
+    display: none;
+  }
+
+  /* Improve modal / sheet rendering */
+  .modal-sheet {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Typography scale down slightly */
+  h1 { font-size: 20px !important; }
+  h2 { font-size: 16px !important; }
+
+  /* Animations: reduce motion on small devices if preferred */
+  @media (prefers-reduced-motion: reduce) {
+    .anim-fade-up, .anim-fade-in, .anim-scale-in {
+      animation: none;
+    }
+  }
+}
+
+/* Safe area insets for notch / home bar */
+@supports (padding: env(safe-area-inset-top)) {
+  header {
+    padding-top: env(safe-area-inset-top);
+  }
+}

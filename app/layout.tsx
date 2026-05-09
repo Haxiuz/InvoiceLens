@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./components/AuthProvider";
 import Header from "./components/Header";
+import BottomNav from "./components/BottomNav";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,9 +22,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",      // enables safe-area insets for notch/home bar
+  themeColor: "#7c6ef7",
+};
+
 export const metadata: Metadata = {
   title: "InvoiceLens — AI Invoice Scanner",
   description: "Extract invoice data instantly using Google Gemini AI vision and OCR. Supports PDF, JPG, PNG.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "InvoiceLens",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
@@ -42,8 +61,24 @@ export default function RootLayout({
           <ThemeProvider>
             <Header />
             {children}
+            <BottomNav />
           </ThemeProvider>
         </AuthProvider>
+
+        {/* Register service worker for PWA offline support */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(reg) { console.log('SW registered:', reg.scope); })
+                    .catch(function(err) { console.log('SW registration failed:', err); });
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
