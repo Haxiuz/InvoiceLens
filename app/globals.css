@@ -302,11 +302,16 @@ body {
   }
 
   /* Push page content up so it doesn't hide behind the bottom nav */
-  /* body padding removed — bottom nav was removed */
+  main {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+  }
 
   /* Compress the header on mobile */
   header {
-    padding: 0 16px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: env(safe-area-inset-top) !important;
+    padding-bottom: 0px !important;
   }
 
   /* General page padding */

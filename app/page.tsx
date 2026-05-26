@@ -172,6 +172,7 @@ export default function Home() {
   const [error, setError]         = useState<string>("");
   const [progress, setProgress]   = useState(0);
   const fileInputRef              = useRef<HTMLInputElement>(null);
+  const cameraInputRef            = useRef<HTMLInputElement>(null);
   const dropRef                   = useRef<HTMLDivElement>(null);
   const videoRef                  = useRef<HTMLVideoElement>(null);
   const streamRef                 = useRef<MediaStream | null>(null);
@@ -265,7 +266,12 @@ export default function Home() {
         if (videoRef.current) videoRef.current.srcObject = stream;
       }, 50);
     } catch (err) {
-      setError("Could not access camera. Please check permissions.");
+      console.warn("getUserMedia failed, falling back to native capture input", err);
+      if (cameraInputRef.current) {
+        cameraInputRef.current.click();
+      } else {
+        setError("Could not access camera. Please check permissions.");
+      }
     }
   };
 
@@ -431,6 +437,15 @@ export default function Home() {
               id="file-input"
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
+              style={{ display: "none" }}
+            />
+            <input
+              ref={cameraInputRef}
+              id="camera-fallback-input"
+              type="file"
+              accept="image/*"
+              capture="environment"
               onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
               style={{ display: "none" }}
             />

@@ -26,6 +26,7 @@ export default function Header() {
       backdropFilter: "blur(20px)",
       borderBottom: "1px solid var(--border)",
       padding: "0 32px",
+      paddingTop: "env(safe-area-inset-top)",
     }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
