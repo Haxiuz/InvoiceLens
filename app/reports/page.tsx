@@ -28,11 +28,11 @@ const REPORT_TABS: { id: ReportType; label: string; icon: React.ReactNode }[] = 
   { id: "notes",               label: "Notes to Financial Statements",        icon: <BookOpen size={15}/> },
 ];
 
-function fmt(n: number, currency = "USD") {
+function fmt(n: number, currency = "IDR") {
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
+    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
   } catch {
-    return `${currency} ${n.toFixed(2)}`;
+    return `Rp ${n.toLocaleString("id-ID")}`;
   }
 }
 
@@ -66,13 +66,8 @@ export default function ReportsPage() {
     const invoiceCount    = invoices.length;
     const avgInvoice      = invoiceCount ? totalExpenses / invoiceCount : 0;
 
-    // Most-used currency across invoices
-    const currencies = invoices.map(i => i.currency).filter(Boolean);
-    const currency   = currencies.length
-      ? [...currencies].sort((a, b) =>
-          currencies.filter(c => c === b).length - currencies.filter(c => c === a).length
-        )[0] || "USD"
-      : "USD";
+    // Force currency to IDR
+    const currency   = "IDR";
 
     // What we can truthfully report:
     //   Accounts Payable  = total owed to vendors (invoice totals)

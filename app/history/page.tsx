@@ -34,12 +34,12 @@ function parseInvoiceData(record: InvoiceRecord): ParsedData {
 function fmtCurrency(n: number | null | undefined, currency: string | null) {
   if (n == null) return <span style={{ color: "var(--text-3)" }}>—</span>;
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("id-ID", {
       style: "currency",
-      currency: currency || "USD",
+      currency: "IDR",
     }).format(n);
   } catch {
-    return `${currency || "USD"} ${n.toFixed(2)}`;
+    return `Rp ${n.toLocaleString("id-ID")}`;
   }
 }
 
@@ -167,14 +167,17 @@ export default function HistoryPage() {
       head: [["Date", "Vendor", "Invoice #", "Base Price", "VAT", "Amount"]],
       body: sortedInvoices.map(inv => {
         const d = parseInvoiceData(inv);
-        const cur = inv.currency || "USD";
+        const formatRp = (val: number | null | undefined) => {
+          if (val == null) return "—";
+          return `Rp ${new Intl.NumberFormat("id-ID").format(val)}`;
+        };
         return [
           inv.invoiceDate || "—",
           inv.vendorName || "—",
           inv.invoiceNumber || "—",
-          `${cur} ${(d.subtotal ?? 0).toFixed(2)}`,
-          `${cur} ${(d.tax_amount ?? 0).toFixed(2)}`,
-          `${cur} ${(inv.totalAmount ?? 0).toFixed(2)}`,
+          formatRp(d.subtotal),
+          formatRp(d.tax_amount),
+          formatRp(inv.totalAmount),
         ];
       }),
       startY: 20,
@@ -192,7 +195,7 @@ export default function HistoryPage() {
         "Base Price": d.subtotal ?? 0,
         VAT: d.tax_amount ?? 0,
         Amount: inv.totalAmount || 0,
-        Currency: inv.currency || "USD",
+        Currency: "IDR",
       };
     });
     const ws = XLSX.utils.json_to_sheet(data);
@@ -212,7 +215,7 @@ export default function HistoryPage() {
       xml += `    <BasePrice>${d.subtotal ?? 0}</BasePrice>\n`;
       xml += `    <VAT>${d.tax_amount ?? 0}</VAT>\n`;
       xml += `    <Amount>${inv.totalAmount || 0}</Amount>\n`;
-      xml += `    <Currency>${inv.currency || "USD"}</Currency>\n`;
+      xml += `    <Currency>IDR</Currency>\n`;
       xml += `  </Transaction>\n`;
     });
     xml += `</Transactions>`;
@@ -335,13 +338,13 @@ export default function HistoryPage() {
                 <tr style={{ background: "var(--surface-2)", borderTop: "1px solid var(--border)" }}>
                   <td colSpan={3} style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>Total Sum:</td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "var(--text-2)" }}>
-                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(totalBase)}
+                    {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(totalBase)}
                   </td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "var(--warning)" }}>
-                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(totalVAT)}
+                    {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(totalVAT)}
                   </td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 800, color: "var(--accent-2)" }}>
-                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(totalSum)}
+                    {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(totalSum)}
                   </td>
                   <td></td>
                 </tr>

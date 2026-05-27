@@ -41,9 +41,9 @@ interface InvoiceRecord {
 function fmt(n: number | null | undefined, currency?: string | null): string {
   if (n == null) return "—";
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD" }).format(n);
+    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
   } catch {
-    return `${currency || "USD"} ${n.toFixed(2)}`;
+    return `Rp ${n.toLocaleString("id-ID")}`;
   }
 }
 
@@ -197,7 +197,7 @@ export default function InvoiceDetailPage() {
                       {item.quantity ?? <span style={{ color: "var(--text-3)" }}>—</span>}
                     </td>
                     <td style={{ padding: "10px 12px 10px 0", textAlign: "right", color: "var(--text-2)" }}>
-                      {item.unit_price != null ? fmt(item.unit_price, currency) : <span style={{ color: "var(--text-3)" }}>IDR 0</span>}
+                      {item.unit_price != null ? fmt(item.unit_price, currency) : <span style={{ color: "var(--text-3)" }}>Rp 0</span>}
                     </td>
                     <td style={{ padding: "10px 0", textAlign: "right", color: item.total ? "var(--text-1)" : "var(--text-3)", fontWeight: item.total ? 600 : 400 }}>
                       {item.total != null ? fmt(item.total, currency) : fmt(0, currency)}

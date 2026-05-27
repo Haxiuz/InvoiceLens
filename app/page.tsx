@@ -35,9 +35,13 @@ type AppState = "idle" | "loading" | "done" | "error" | "camera";
 /* ─── Gemini API Call (via secure server route) ─────────── */
 
 /* ─── Helpers ───────────────────────────────────────────── */
-function fmt(n: number | null, currency = "USD"): string {
+function fmt(n: number | null, currency = "IDR"): string {
   if (n == null) return "—";
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD" }).format(n);
+  try {
+    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
+  } catch {
+    return `Rp ${n.toLocaleString("id-ID")}`;
+  }
 }
 
 function fileToBase64(file: File): Promise<string> {
