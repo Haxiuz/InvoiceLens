@@ -3,9 +3,11 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import { User, Image as ImageIcon, Type, Camera, Check, RotateCcw } from "lucide-react";
+import { useLanguage } from "../components/LanguageProvider";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
+  const { t } = useLanguage();
 
   const [nickname, setNickname] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -74,7 +76,7 @@ export default function ProfilePage() {
   };
 
   const handleReset = () => {
-    if (!confirm("Reset all profile customizations?")) return;
+    if (!confirm(t("confirmResetProfile"))) return;
     localStorage.removeItem("profileNickname");
     localStorage.removeItem("profileAvatar");
     localStorage.removeItem("profileBg");
@@ -87,8 +89,8 @@ export default function ProfilePage() {
     window.dispatchEvent(new Event("profileUpdated"));
   };
 
-  if (status === "loading") return <div style={{ padding: 40, textAlign: "center" }}>Loading...</div>;
-  if (status === "unauthenticated") return <div style={{ padding: 40, textAlign: "center" }}>Please sign in to access your profile.</div>;
+  if (status === "loading") return <div style={{ padding: 40, textAlign: "center" }}>{t("loading")}</div>;
+  if (status === "unauthenticated") return <div style={{ padding: 40, textAlign: "center" }}>{t("pleaseSignInProfile")}</div>;
 
   const displayName = nickname || session?.user?.name || "User";
   const displayAvatar = avatarPreview || session?.user?.image;
@@ -105,8 +107,8 @@ export default function ProfilePage() {
           <User size={22} color="#fff" />
         </div>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700 }}>Profile</h1>
-          <p style={{ fontSize: 13, color: "var(--text-3)" }}>Customize your personal appearance</p>
+          <h1 style={{ fontSize: 24, fontWeight: 700 }}>{t("profile")}</h1>
+          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{t("customizeAppearance")}</p>
         </div>
       </div>
 
@@ -120,8 +122,8 @@ export default function ProfilePage() {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <div style={iconWrapStyle}><Type size={16} color="var(--accent)" /></div>
               <div>
-                <h2 style={sectionTitle}>Custom Nickname</h2>
-                <p style={sectionSub}>Replaces your name in the header</p>
+                <h2 style={sectionTitle}>{t("customNickname")}</h2>
+                <p style={sectionSub}>{t("nicknameSub")}</p>
               </div>
             </div>
             <input
@@ -129,11 +131,11 @@ export default function ProfilePage() {
               type="text"
               value={nickname}
               onChange={e => setNickname(e.target.value)}
-              placeholder={session?.user?.name || "Enter a nickname…"}
+              placeholder={session?.user?.name || t("enterNickname")}
               maxLength={30}
               style={inputStyle}
             />
-            <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>{nickname.length}/30 characters</p>
+            <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>{nickname.length}/30 {t("charactersLabel")}</p>
           </div>
 
           {/* Avatar */}
@@ -141,8 +143,8 @@ export default function ProfilePage() {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <div style={iconWrapStyle}><Camera size={16} color="var(--accent)" /></div>
               <div>
-                <h2 style={sectionTitle}>Profile Picture</h2>
-                <p style={sectionSub}>Upload an image or paste a URL</p>
+                <h2 style={sectionTitle}>{t("profilePicture")}</h2>
+                <p style={sectionSub}>{t("avatarSub")}</p>
               </div>
             </div>
             <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
@@ -150,7 +152,7 @@ export default function ProfilePage() {
                 onClick={() => avatarInputRef.current?.click()}
                 style={uploadBtnStyle}
               >
-                📁 Upload Image
+                📁 {t("uploadImage")}
               </button>
               <input
                 ref={avatarInputRef}
@@ -168,7 +170,7 @@ export default function ProfilePage() {
                 setAvatarUrl(e.target.value);
                 setAvatarPreview(e.target.value || null);
               }}
-              placeholder="Or paste an image URL…"
+              placeholder={t("pasteImageUrl")}
               style={inputStyle}
             />
             {avatarPreview && (
@@ -176,8 +178,8 @@ export default function ProfilePage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={avatarPreview} alt="Avatar preview" style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--border-lit)" }} onError={() => setAvatarPreview(null)} />
                 <div>
-                  <p style={{ fontSize: 12, color: "var(--success)", fontWeight: 600 }}>✓ Preview looks good</p>
-                  <button onClick={() => { setAvatarPreview(null); setAvatarUrl(""); }} style={{ fontSize: 11, color: "var(--danger)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Remove</button>
+                  <p style={{ fontSize: 12, color: "var(--success)", fontWeight: 600 }}>{t("previewLooksGood")}</p>
+                  <button onClick={() => { setAvatarPreview(null); setAvatarUrl(""); }} style={{ fontSize: 11, color: "var(--danger)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>{t("remove")}</button>
                 </div>
               </div>
             )}
@@ -188,13 +190,13 @@ export default function ProfilePage() {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <div style={iconWrapStyle}><ImageIcon size={16} color="var(--accent)" /></div>
               <div>
-                <h2 style={sectionTitle}>Background Image</h2>
-                <p style={sectionSub}>Set a custom full-page background</p>
+                <h2 style={sectionTitle}>{t("bgImage")}</h2>
+                <p style={sectionSub}>{t("bgSub")}</p>
               </div>
             </div>
             <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
               <button onClick={() => bgInputRef.current?.click()} style={uploadBtnStyle}>
-                📁 Upload Image
+                📁 {t("uploadImage")}
               </button>
               <input
                 ref={bgInputRef}
@@ -212,14 +214,14 @@ export default function ProfilePage() {
                 setBgUrl(e.target.value);
                 setBgPreview(e.target.value || null);
               }}
-              placeholder="Or paste an image URL…"
+              placeholder={t("pasteImageUrl")}
               style={inputStyle}
             />
             {bgPreview && (
               <div style={{ marginTop: 12 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={bgPreview} alt="Background preview" style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }} onError={() => setBgPreview(null)} />
-                <button onClick={() => { setBgPreview(null); setBgUrl(""); }} style={{ fontSize: 11, color: "var(--danger)", background: "none", border: "none", cursor: "pointer", marginTop: 6, padding: 0 }}>Remove background</button>
+                <button onClick={() => { setBgPreview(null); setBgUrl(""); }} style={{ fontSize: 11, color: "var(--danger)", background: "none", border: "none", cursor: "pointer", marginTop: 6, padding: 0 }}>{t("removeBackground")}</button>
               </div>
             )}
           </div>
@@ -237,7 +239,7 @@ export default function ProfilePage() {
                 transition: "background 0.3s",
               }}
             >
-              {saved ? <><Check size={16}/> Saved!</> : "💾 Save Changes"}
+              {saved ? <><Check size={16}/> {t("saved")}</> : "💾 " + t("saveChanges")}
             </button>
             <button
               onClick={handleReset}
@@ -248,7 +250,7 @@ export default function ProfilePage() {
                 display: "flex", alignItems: "center", gap: 6,
               }}
             >
-              <RotateCcw size={14}/> Reset
+              <RotateCcw size={14}/> {t("reset")}
             </button>
           </div>
         </div>
@@ -256,7 +258,7 @@ export default function ProfilePage() {
         {/* Right: Live Preview */}
         <div className="anim-fade-up" style={{ position: "sticky", top: 80 }}>
           <div style={{ ...cardStyle, textAlign: "center" }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 20 }}>Live Preview</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 20 }}>{t("livePreview")}</p>
 
             {/* Avatar preview */}
             <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}>
@@ -285,7 +287,7 @@ export default function ProfilePage() {
             <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 20 }}>{session?.user?.email}</p>
 
             <div style={{ borderTop: "1px solid var(--border)", paddingTop: 16 }}>
-              <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 10 }}>Header preview:</p>
+              <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 10 }}>{t("headerPreview")}</p>
               <div style={{ background: "rgba(12,12,20,0.9)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "8px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-1)" }}>Invoice<span style={{ color: "var(--accent-2)" }}>Lens</span></span>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -305,7 +307,7 @@ export default function ProfilePage() {
 
           {bgPreview && (
             <div style={{ ...cardStyle, marginTop: 16 }}>
-              <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Background Preview</p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>{t("bgPreviewLabel")}</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={bgPreview} alt="bg" style={{ width: "100%", height: 100, objectFit: "cover", borderRadius: "var(--radius-md)", opacity: 0.8 }} onError={() => setBgPreview(null)} />
             </div>

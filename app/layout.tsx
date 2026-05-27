@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./components/AuthProvider";
+import { LanguageProvider } from "./components/LanguageProvider";
 import Header from "./components/Header";
 import BottomNav from "./components/BottomNav";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
@@ -69,10 +70,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <ThemeProvider>
-            <Header />
-            {children}
-            <BottomNav />
-            <IOSInstallPrompt />
+            <LanguageProvider>
+              <Header />
+              {children}
+              <BottomNav />
+              <IOSInstallPrompt />
+            </LanguageProvider>
           </ThemeProvider>
         </AuthProvider>
 

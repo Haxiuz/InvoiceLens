@@ -7,6 +7,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { Download, Trash2, Scissors, ChevronRight } from "lucide-react";
+import { useLanguage } from "../components/LanguageProvider";
 
 interface InvoiceRecord {
   id: string;
@@ -45,6 +46,7 @@ function fmtCurrency(n: number | null | undefined, currency: string | null) {
 
 export default function HistoryPage() {
   const { data: session, status } = useSession();
+  const { t } = useLanguage();
   const router = useRouter();
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -240,7 +242,7 @@ export default function HistoryPage() {
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 24px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700 }}>Historical Transactions</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700 }}>{t("historicalTransactions")}</h1>
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <select
@@ -251,16 +253,16 @@ export default function HistoryPage() {
               background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-1)"
             }}
           >
-            <option value="default">Sort: Default (Newest First)</option>
-            <option value="date">Sort: By Date</option>
-            <option value="amount">Sort: By Amount</option>
+            <option value="default">{t("sortDefault")}</option>
+            <option value="date">{t("sortDate")}</option>
+            <option value="amount">{t("sortAmount")}</option>
           </select>
 
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={handleRemoveDuplicates} style={{ ...btnStyle, background: "rgba(247, 110, 110, 0.1)", color: "var(--danger)", border: "1px solid rgba(247, 110, 110, 0.2)" }}><Scissors size={14}/> Auto-Dedupe</button>
-            <button onClick={exportPDF} style={btnStyle}><Download size={14}/> PDF</button>
-            <button onClick={exportExcel} style={btnStyle}><Download size={14}/> Excel</button>
-            <button onClick={exportXML} style={btnStyle}><Download size={14}/> XML</button>
+            <button onClick={handleRemoveDuplicates} style={{ ...btnStyle, background: "rgba(247, 110, 110, 0.1)", color: "var(--danger)", border: "1px solid rgba(247, 110, 110, 0.2)" }}><Scissors size={14}/> {t("autoDedupe")}</button>
+            <button onClick={exportPDF} style={btnStyle}><Download size={14}/> {t("pdf")}</button>
+            <button onClick={exportExcel} style={btnStyle}><Download size={14}/> {t("excel")}</button>
+            <button onClick={exportXML} style={btnStyle}><Download size={14}/> {t("xml")}</button>
           </div>
         </div>
       </div>
@@ -270,13 +272,13 @@ export default function HistoryPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, minWidth: 750 }}>
             <thead>
               <tr style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border)" }}>
-                <th style={thStyle}>Date</th>
-                <th style={thStyle}>Vendor</th>
-                <th style={thStyle}>Invoice #</th>
-                <th style={{ ...thStyle, textAlign: "right" }}>Base Price</th>
-                <th style={{ ...thStyle, textAlign: "right" }}>VAT</th>
-                <th style={{ ...thStyle, textAlign: "right" }}>Amount</th>
-                <th style={{ ...thStyle, width: 80, textAlign: "right" }}>Actions</th>
+                <th style={thStyle}>{t("date")}</th>
+                <th style={thStyle}>{t("vendor")}</th>
+                <th style={thStyle}>{t("invoiceNumber")}</th>
+                <th style={{ ...thStyle, textAlign: "right" }}>{t("basePrice")}</th>
+                <th style={{ ...thStyle, textAlign: "right" }}>{t("vat")}</th>
+                <th style={{ ...thStyle, textAlign: "right" }}>{t("amount")}</th>
+                <th style={{ ...thStyle, width: 80, textAlign: "right" }}>{t("actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -328,7 +330,7 @@ export default function HistoryPage() {
               {sortedInvoices.length === 0 && (
                 <tr>
                   <td colSpan={7} style={{ padding: "40px", textAlign: "center", color: "var(--text-3)" }}>
-                    No historical data found.
+                    {t("noHistory")}
                   </td>
                 </tr>
               )}
@@ -336,7 +338,7 @@ export default function HistoryPage() {
             {sortedInvoices.length > 0 && (
               <tfoot>
                 <tr style={{ background: "var(--surface-2)", borderTop: "1px solid var(--border)" }}>
-                  <td colSpan={3} style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>Total Sum:</td>
+                  <td colSpan={3} style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{t("totalSum")}</td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "var(--text-2)" }}>
                     {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(totalBase)}
                   </td>
@@ -355,7 +357,7 @@ export default function HistoryPage() {
       </div>
 
       <p style={{ marginTop: 12, fontSize: 12, color: "var(--text-3)", textAlign: "center" }}>
-        💡 Click any row to view full invoice details
+        💡 {t("clickRowDetails")}
       </p>
     </div>
   );

@@ -3,13 +3,131 @@
 import { useTheme } from "next-themes";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
-import { Menu, LogIn, LogOut } from "lucide-react";
+import { Menu, LogIn, LogOut, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
+import { useLanguage } from "./LanguageProvider";
+import { Language } from "@/lib/translation";
+
+function LanguageSwitcher() {
+  const { language, setLanguage } = useLanguage();
+  const [open, setOpen] = useState(false);
+
+  const langNames: Record<Language, { label: string; flag: string }> = {
+    en: { label: "English", flag: "🇺🇸" },
+    id: { label: "Bahasa Indonesia", flag: "🇮🇩" },
+    es: { label: "Español", flag: "🇪🇸" },
+    pt: { label: "Português", flag: "🇵🇹" },
+    zh: { label: "中文", flag: "🇨🇳" },
+    ru: { label: "Русский", flag: "🇷🇺" },
+    ar: { label: "العربية", flag: "🇸🇦" },
+    de: { label: "Deutsch", flag: "🇩🇪" },
+  };
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          background: "var(--surface-2)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-sm)",
+          color: "var(--text-2)",
+          padding: "6px 12px",
+          fontSize: 13,
+          fontWeight: 500,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          transition: "all 0.2s",
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = "var(--border-lit)";
+          e.currentTarget.style.color = "var(--text-1)";
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = "var(--border)";
+          e.currentTarget.style.color = "var(--text-2)";
+        }}
+      >
+        <span style={{ fontSize: 14 }}>{langNames[language]?.flag}</span>
+        <span style={{ textTransform: "uppercase" }}>{language}</span>
+        <ChevronDown size={12} style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+      </button>
+
+      {open && (
+        <>
+          <div
+            onClick={() => setOpen(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 998 }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              right: language === "ar" ? undefined : 0,
+              left: language === "ar" ? 0 : undefined,
+              top: "calc(100% + 6px)",
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius-md)",
+              boxShadow: "var(--shadow-md)",
+              padding: 6,
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              minWidth: 160,
+              zIndex: 999,
+              animation: "fadeIn 0.15s ease-out",
+            }}
+          >
+            {(Object.keys(langNames) as Language[]).map(lang => (
+              <button
+                key={lang}
+                onClick={() => {
+                  setLanguage(lang);
+                  setOpen(false);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  width: "100%",
+                  padding: "8px 10px",
+                  border: "none",
+                  borderRadius: "var(--radius-sm)",
+                  background: language === lang ? "var(--surface-3)" : "transparent",
+                  color: language === lang ? "var(--accent-2)" : "var(--text-2)",
+                  fontSize: 13,
+                  fontWeight: language === lang ? 600 : 400,
+                  textAlign: language === "ar" ? "right" : "left",
+                  cursor: "pointer",
+                  transition: "background 0.2s",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = "var(--surface-2)";
+                  e.currentTarget.style.color = "var(--text-1)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = language === lang ? "var(--surface-3)" : "transparent";
+                  e.currentTarget.style.color = language === lang ? "var(--accent-2)" : "var(--text-2)";
+                }}
+              >
+                <span>{langNames[lang].flag}</span>
+                <span>{langNames[lang].label}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -59,6 +177,9 @@ export default function Header() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
           {/* Auth */}
           {session ? (
             <HeaderUserArea session={session} />
@@ -71,7 +192,7 @@ export default function Header() {
                 display: "flex", alignItems: "center", gap: 6, fontWeight: 500
               }}
             >
-              <LogIn size={14} /> Sign In
+              <LogIn size={14} /> {t("signIn")}
             </button>
           )}
         </div>
@@ -82,6 +203,7 @@ export default function Header() {
 }
 
 function HeaderUserArea({ session }: { session: any }) {
+  const { t } = useLanguage();
   const [customAvatar, setCustomAvatar] = useState<string | null>(null);
   const [customNickname, setCustomNickname] = useState<string | null>(null);
 
@@ -138,7 +260,7 @@ function HeaderUserArea({ session }: { session: any }) {
           display: "flex", alignItems: "center", gap: 6
         }}
       >
-        <LogOut size={14} /> Logout
+        <LogOut size={14} /> {t("logout")}
       </button>
     </div>
   );

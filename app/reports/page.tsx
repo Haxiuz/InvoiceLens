@@ -6,6 +6,7 @@ import { BarChart2, Download, FileText, TrendingUp, Wallet, Users, BookOpen } fr
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { useLanguage, Language, TranslationKeys } from "../components/LanguageProvider";
 
 interface InvoiceRecord {
   id: string;
@@ -20,13 +21,32 @@ interface InvoiceRecord {
 
 type ReportType = "balance-sheet" | "income-statement" | "cash-flow" | "shareholders-equity" | "notes";
 
-const REPORT_TABS: { id: ReportType; label: string; icon: React.ReactNode }[] = [
-  { id: "balance-sheet",       label: "Balance Sheet",                       icon: <Wallet size={15}/> },
-  { id: "income-statement",    label: "Income Statement",                    icon: <TrendingUp size={15}/> },
-  { id: "cash-flow",           label: "Cash Flow Statement",                 icon: <BarChart2 size={15}/> },
-  { id: "shareholders-equity", label: "Statement of Shareholders' Equity",   icon: <Users size={15}/> },
-  { id: "notes",               label: "Notes to Financial Statements",        icon: <BookOpen size={15}/> },
+const REPORT_TABS: { id: ReportType; icon: React.ReactNode }[] = [
+  { id: "balance-sheet",       icon: <Wallet size={15}/> },
+  { id: "income-statement",    icon: <TrendingUp size={15}/> },
+  { id: "cash-flow",           icon: <BarChart2 size={15}/> },
+  { id: "shareholders-equity", icon: <Users size={15}/> },
+  { id: "notes",               icon: <BookOpen size={15}/> },
 ];
+
+const tabKeyMap: Record<ReportType, keyof TranslationKeys> = {
+  "balance-sheet": "balanceSheet",
+  "income-statement": "incomeStatement",
+  "cash-flow": "cashFlowStatement",
+  "shareholders-equity": "shareholdersEquity",
+  "notes": "notesTitle",
+};
+
+const localeMap: Record<Language, string> = {
+  en: "en-US",
+  id: "id-ID",
+  es: "es-ES",
+  pt: "pt-PT",
+  zh: "zh-CN",
+  ru: "ru-RU",
+  ar: "ar-EG",
+  de: "de-DE",
+};
 
 function fmt(n: number, currency = "IDR") {
   try {
@@ -46,6 +66,8 @@ export default function ReportsPage() {
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ReportType>("balance-sheet");
+  const { t, language } = useLanguage();
+  const NA = t("noIncomeData");
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -80,96 +102,95 @@ export default function ReportsPage() {
 
   const f = financials;
   const cur = f.currency;
-  const NA = "N/A — no income data";
 
   // ── Report rows — only factual data ────────────────────────────
   const getReportRows = (): [string, string][] => {
     switch (activeTab) {
       case "balance-sheet": return [
-        ["ASSETS", ""],
-        ["Cash and Cash Equivalents", NA],
-        ["Prepaid Expenses",          NA],
-        ["Other Current Assets",      NA],
-        ["Total Assets",              NA],
-        ["LIABILITIES", ""],
-        ["Accounts Payable — Base Cost (excl. VAT)", fmt(f.totalBase, cur)],
-        ["VAT Payable",               fmt(f.totalVAT, cur)],
-        ["Other Liabilities",         NA],
-        ["Total Liabilities (Known)", fmt(f.totalExpenses, cur)],
-        ["EQUITY", ""],
-        ["Common Stock",              NA],
-        ["Retained Earnings",         NA],
-        ["Total Equity",              NA],
+        [t("assets"), ""],
+        [t("cashAndEquivalents"), NA],
+        [t("prepaidExpenses"),          NA],
+        [t("otherCurrentAssets"),      NA],
+        [t("totalAssets"),              NA],
+        [t("liabilities"), ""],
+        [t("accountsPayableBase"), fmt(f.totalBase, cur)],
+        [t("vatPayable"),               fmt(f.totalVAT, cur)],
+        [t("otherLiabilities"),         NA],
+        [t("totalLiabilities"), fmt(f.totalExpenses, cur)],
+        [t("equity"), ""],
+        [t("commonStock"),              NA],
+        [t("retainedEarnings"),         NA],
+        [t("totalEquity"),              NA],
       ];
 
       case "income-statement": return [
-        ["INCOME (REVENUE)", ""],
-        ["Sales / Service Revenue",   NA],
-        ["Total Income",              NA],
-        ["EXPENSES", ""],
-        ["Vendor Invoice Costs (Base, excl. VAT)", fmt(f.totalBase, cur)],
-        ["VAT Paid on Purchases",     fmt(f.totalVAT, cur)],
-        ["Total Expenses (Base + VAT)", fmt(f.totalExpenses, cur)],
-        ["Gross Profit",              NA],
-        ["Net Income",                NA],
+        [t("incomeRevenue"), ""],
+        [t("salesRevenue"),   NA],
+        [t("totalIncome"),              NA],
+        [t("expenses"), ""],
+        [t("vendorInvoiceCosts"), fmt(f.totalBase, cur)],
+        [t("vatPaidPurchases"),     fmt(f.totalVAT, cur)],
+        [t("totalExpensesBaseVat"), fmt(f.totalExpenses, cur)],
+        [t("grossProfit"),              NA],
+        [t("netIncome"),                NA],
       ];
 
       case "cash-flow": return [
-        ["OPERATING ACTIVITIES", ""],
-        ["Cash Received from Customers",              NA],
-        ["Payments to Vendors — Base Cost (excl. VAT)", fmt(-f.totalBase, cur)],
-        ["VAT Paid",                                  fmt(-f.totalVAT, cur)],
-        ["Total Cash Paid to Vendors (Base + VAT)",   fmt(-f.totalExpenses, cur)],
-        ["Net Cash from Operations",                  NA],
-        ["INVESTING ACTIVITIES", ""],
-        ["Capital Expenditures",                      NA],
-        ["Net Cash from Investing",                   NA],
-        ["FINANCING ACTIVITIES", ""],
-        ["Dividends / Distributions",                 NA],
-        ["Net Cash from Financing",                   NA],
-        ["NET CHANGE IN CASH",                        NA],
+        [t("operatingActivities"), ""],
+        [t("cashReceivedCustomers"),              NA],
+        [t("paymentsVendorsBase"), fmt(-f.totalBase, cur)],
+        [t("vatPaid"),                                  fmt(-f.totalVAT, cur)],
+        [t("totalCashPaidVendors"),   fmt(-f.totalExpenses, cur)],
+        [t("netCashOperations"),                  NA],
+        [t("investingActivities"), ""],
+        [t("capitalExpenditures"),                      NA],
+        [t("netCashInvesting"),                   NA],
+        [t("financingActivities"), ""],
+        [t("dividendsDistributions"),                 NA],
+        [t("netCashFinancing"),                   NA],
+        [t("netChangeCash"),                        NA],
       ];
 
       case "shareholders-equity": return [
-        ["EQUITY COMPONENTS", ""],
-        ["Beginning Equity (Period Start)",      NA],
-        ["Common Stock Issued",                  NA],
-        ["Net Income (Current Period)",          NA],
-        ["Dividends Declared",                   NA],
-        ["Retained Earnings",                    NA],
-        ["Ending Total Equity",                  NA],
+        [t("equityComponents"), ""],
+        [t("beginningEquity"),      NA],
+        [t("commonStockIssued"),                  NA],
+        [t("netIncomePeriod"),          NA],
+        [t("dividendsDeclared"),                   NA],
+        [t("retainedEarnings"),                    NA],
+        [t("endingTotalEquity"),                  NA],
       ];
 
       case "notes": return [
-        ["NOTE 1: ACCOUNTING POLICIES", ""],
-        ["Basis of Preparation",   "Based on scanned vendor invoices"],
-        ["Invoice Classification", "Expense / Accounts Payable — bills paid to vendors"],
-        ["VAT Treatment",          "Extracted from invoice; recorded as VAT Payable"],
-        ["Revenue Data",           "Not available — this app tracks expenses only"],
-        ["NOTE 2: EXPENSE SUMMARY", ""],
-        ["Total Invoices Scanned",         String(f.invoiceCount)],
-        ["Total Vendor Expenses",          fmt(f.totalExpenses, cur)],
-        ["Total Base Cost (pre-VAT)",      fmt(f.totalBase, cur)],
-        ["Total VAT Paid",                 fmt(f.totalVAT, cur)],
-        ["Average Invoice Value",          fmt(f.avgInvoice, cur)],
-        ["Primary Currency",               cur],
-        ["NOTE 3: LIMITATIONS", ""],
-        ["Revenue / Income",  "Not recorded — add income invoices to enable P&L reporting"],
-        ["Asset Values",      "Not recorded — requires asset register"],
-        ["Equity",            "Cannot be calculated without revenue data"],
+        [t("notesPolicies"), ""],
+        [t("basisOfPrep"),   t("basisOfPrepVal")],
+        [t("invClassification"), t("invClassificationVal")],
+        [t("vatTreatment"),          t("vatTreatmentVal")],
+        [t("revenueData"),           t("revenueDataVal")],
+        [t("notesSummary"), ""],
+        [t("totalInvoicesScanned"),         String(f.invoiceCount)],
+        [t("totalVendorExpenses"),          fmt(f.totalExpenses, cur)],
+        [t("totalBaseCost"),      fmt(f.totalBase, cur)],
+        [t("totalVatPaid"),                 fmt(f.totalVAT, cur)],
+        [t("avgInvoiceValue"),          fmt(f.avgInvoice, cur)],
+        [t("primaryCurrency"),               cur],
+        [t("notesLimitations"), ""],
+        [t("revenueIncome"),  t("revenueIncomeVal")],
+        [t("assetValues"),      t("assetValuesVal")],
+        [t("equityLimitation"),            t("equityLimitationVal")],
       ];
     }
   };
 
   const exportReportPDF = () => {
     const doc = new jsPDF();
-    const label = REPORT_TABS.find(t => t.id === activeTab)?.label || "";
+    const label = t(tabKeyMap[activeTab]);
     doc.setFontSize(16);
     doc.text(`InvoiceLens — ${label}`, 14, 16);
     doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 24);
+    doc.text(`${t("generated")}: ${new Date().toLocaleDateString(localeMap[language])}`, 14, 24);
     autoTable(doc, {
-      head: [["Item", "Amount"]],
+      head: [[t("itemLabel"), t("amountLabel")]],
       body: getReportRows(),
       startY: 30,
       styles: { fontSize: 11 },
@@ -179,8 +200,8 @@ export default function ReportsPage() {
   };
 
   const exportReportExcel = () => {
-    const label = REPORT_TABS.find(t => t.id === activeTab)?.label || activeTab;
-    const rows = getReportRows().map(([item, amount]) => ({ Item: item, Amount: amount }));
+    const label = t(tabKeyMap[activeTab]);
+    const rows = getReportRows().map(([item, amount]) => ({ [t("itemLabel")]: item, [t("amountLabel")]: amount }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, label.substring(0, 31));
@@ -188,7 +209,7 @@ export default function ReportsPage() {
   };
 
   const exportReportXML = () => {
-    const label = REPORT_TABS.find(t => t.id === activeTab)?.label || activeTab;
+    const label = t(tabKeyMap[activeTab]);
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<Report type="${label}" date="${new Date().toISOString()}">\n`;
     getReportRows().forEach(([item, amount]) => {
       const safeItem = item.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -203,11 +224,11 @@ export default function ReportsPage() {
     URL.revokeObjectURL(url);
   };
 
-  if (status === "loading" || loading) return <div style={{ padding: 40, textAlign: "center" }}>Loading reports…</div>;
-  if (status === "unauthenticated") return <div style={{ padding: 40, textAlign: "center" }}>Please sign in to view reports.</div>;
+  if (status === "loading" || loading) return <div style={{ padding: 40, textAlign: "center" }}>{t("loading")}</div>;
+  if (status === "unauthenticated") return <div style={{ padding: 40, textAlign: "center" }}>{t("pleaseSignInProfile")}</div>;
 
   const rows = getReportRows();
-  const activeLabel = REPORT_TABS.find(t => t.id === activeTab)?.label || "";
+  const activeLabel = t(tabKeyMap[activeTab]);
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }}>
@@ -218,8 +239,10 @@ export default function ReportsPage() {
             <BarChart2 size={22} color="#fff" />
           </div>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700 }}>Financial Reports</h1>
-            <p style={{ fontSize: 13, color: "var(--text-3)" }}>Based on {f.invoiceCount} invoice{f.invoiceCount !== 1 ? "s" : ""} · Expense tracking only</p>
+            <h1 style={{ fontSize: 24, fontWeight: 700 }}>{t("financialReports")}</h1>
+            <p style={{ fontSize: 13, color: "var(--text-3)" }}>
+              {t("basedOn")} {f.invoiceCount} {f.invoiceCount === 1 ? t("invoiceCountText") : t("invoicesCountText")} · {t("expenseTrackingOnly")}
+            </p>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -232,12 +255,12 @@ export default function ReportsPage() {
       {/* KPI cards — only real numbers */}
       <div className="anim-fade-up" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 28 }}>
         {[
-          { label: "Total Expenses",    value: fmt(f.totalExpenses, cur), color: "var(--danger)",   real: true },
-          { label: "Total VAT Paid",    value: fmt(f.totalVAT, cur),      color: "var(--warning)",  real: true },
-          { label: "Pre-Tax Cost",      value: fmt(f.totalBase, cur),     color: "var(--text-1)",   real: true },
-          { label: "Avg Invoice",       value: fmt(f.avgInvoice, cur),    color: "var(--text-2)",   real: true },
-          { label: "Revenue",           value: "N/A",                     color: "var(--text-3)",   real: false },
-          { label: "Net Income",        value: "N/A",                     color: "var(--text-3)",   real: false },
+          { label: t("totalExpenses"),    value: fmt(f.totalExpenses, cur), color: "var(--danger)",   real: true },
+          { label: t("totalVatPaid"),    value: fmt(f.totalVAT, cur),      color: "var(--warning)",  real: true },
+          { label: t("preTaxCost"),      value: fmt(f.totalBase, cur),     color: "var(--text-1)",   real: true },
+          { label: t("avgInvoice"),       value: fmt(f.avgInvoice, cur),    color: "var(--text-2)",   real: true },
+          { label: t("revenue"),           value: "N/A",                     color: "var(--text-3)",   real: false },
+          { label: t("netIncome"),        value: "N/A",                     color: "var(--text-3)",   real: false },
         ].map(kpi => (
           <div key={kpi.label} style={{
             background: "var(--surface)", border: `1px solid ${kpi.real ? "var(--border)" : "var(--border)"}`,
@@ -268,7 +291,7 @@ export default function ReportsPage() {
               whiteSpace: "nowrap", transition: "all 0.2s",
             }}
           >
-            {tab.icon} {tab.label}
+            {tab.icon} {t(tabKeyMap[tab.id])}
           </button>
         ))}
       </div>
@@ -279,7 +302,7 @@ export default function ReportsPage() {
           <FileText size={16} color="var(--accent)" />
           <h2 style={{ fontSize: 15, fontWeight: 600 }}>{activeLabel}</h2>
           <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--text-3)" }}>
-            As of {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            {t("asOf")} {new Date().toLocaleDateString(localeMap[language], { year: "numeric", month: "long", day: "numeric" })}
           </span>
         </div>
 
@@ -289,7 +312,7 @@ export default function ReportsPage() {
               const isSection = item === item.toUpperCase() && item.length > 3 && amount === "";
               const isNA      = amount === NA;
               const isNeg     = amount.startsWith("-");
-              const isBold    = !isNA && (item.toLowerCase().includes("total") || item.toLowerCase().includes("net") || item.toLowerCase().includes("ending"));
+              const isBold    = !isNA && (item.toLowerCase().includes("total") || item.toLowerCase().includes("net") || item.toLowerCase().includes("ending") || item.toLowerCase().includes("ekuitas akhir") || item.toLowerCase().includes("patrimônio líquido final") || item.toLowerCase().includes("期末"));
               return (
                 <tr key={i} style={{ borderBottom: "1px solid var(--border)", background: isSection ? "var(--surface-2)" : "transparent" }}>
                   <td style={{
@@ -322,7 +345,7 @@ export default function ReportsPage() {
       </div>
 
       <p style={{ marginTop: 12, fontSize: 11, color: "var(--text-3)", textAlign: "center" }}>
-        ℹ️ This app tracks <strong>vendor invoices (expenses)</strong> only. Fields showing <em>N/A</em> require income/revenue data not yet recorded.
+        ℹ️ {t("notesDesc")}
       </p>
     </div>
   );

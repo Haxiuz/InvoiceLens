@@ -6,6 +6,7 @@ import {
   FileText, BarChart2, FolderOpen, Camera, Search, Building2,
   ClipboardList, Package, DollarSign, AlertTriangle, Frown, Save, Sparkles
 } from "lucide-react";
+import { useLanguage } from "./components/LanguageProvider";
 
 /* ─── Types ─────────────────────────────────────────────── */
 interface LineItem {
@@ -168,6 +169,7 @@ function SkeletonCard() {
 /* ─── Main Component ────────────────────────────────────── */
 export default function Home() {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [file, setFile]           = useState<File | null>(null);
   const [preview, setPreview]     = useState<string | null>(null);
   const [dragging, setDragging]   = useState(false);
@@ -333,7 +335,6 @@ export default function Home() {
   return (
     <main style={{ minHeight: "100vh", padding: "0 0 80px" }}>
 
-
       {/* ── TOP GRADIENT BLOB ── */}
       <div aria-hidden style={{
         position: "fixed", top: -200, left: "50%", transform: "translateX(-50%)",
@@ -342,14 +343,12 @@ export default function Home() {
         pointerEvents: "none", zIndex: 0,
       }} />
 
-
-
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px 0", position: "relative", zIndex: 1 }}>
 
         {/* ── HERO ── */}
         <div className="anim-fade-up" style={{ textAlign: "center", marginBottom: 48 }}>
           <div style={{ marginBottom: 16 }}>
-            <Badge color="neutral">✨ AI-Powered OCR</Badge>
+            <Badge color="neutral">{t("aiPoweredOcr")}</Badge>
           </div>
           <h1 style={{
             fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 700, lineHeight: 1.15,
@@ -357,10 +356,10 @@ export default function Home() {
             background: "linear-gradient(135deg, var(--text-1) 30%, var(--accent-2) 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           }}>
-            Scan Any Invoice Instantly
+            {t("scanAnyInvoice")}
           </h1>
           <p style={{ color: "var(--text-2)", maxWidth: 500, margin: "0 auto", fontSize: 15, lineHeight: 1.7 }}>
-            Upload an invoice image and Gemini Vision AI will read, parse, and structure every field automatically using OCR.
+            {t("heroSub")}
           </p>
         </div>
 
@@ -397,10 +396,10 @@ export default function Home() {
                 <div className="anim-float" style={{ marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <FileText size={44} strokeWidth={1.2} color="var(--accent-2)" /></div>
                   <p style={{ fontWeight: 600, color: "var(--text-1)", marginBottom: 6, fontSize: 15 }}>
-                    Drop invoice here
+                    {t("dropInvoiceHere")}
                   </p>
-                  <p style={{ color: "var(--text-3)", fontSize: 12 }}>or click to browse</p>
-                  <p style={{ color: "var(--text-3)", fontSize: 11, marginTop: 12 }}>JPG • PNG • WebP • HEIC • PDF · auto-compressed</p>
+                  <p style={{ color: "var(--text-3)", fontSize: 12 }}>{t("orClickToBrowse")}</p>
+                  <p style={{ color: "var(--text-3)", fontSize: 11, marginTop: 12 }}>{t("fileRestrictions")}</p>
                 </div>
               ) : (
                 <div style={{ width: "100%", position: "relative" }}>
@@ -429,7 +428,7 @@ export default function Home() {
                         fontSize: 12, fontWeight: 600, cursor: "pointer",
                       }}
                     >
-                      Remove
+                      {t("remove")}
                     </button>
                   </div>
                 </div>
@@ -476,7 +475,7 @@ export default function Home() {
                   }}
                 >
                   <FolderOpen size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
-                  Browse
+                  {t("browse")}
                 </button>
                 <button
                   id="camera-btn"
@@ -497,7 +496,7 @@ export default function Home() {
                   }}
                 >
                   <Camera size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
-                  Take Photo
+                  {t("takePhoto")}
                 </button>
               </div>
             )}
@@ -552,10 +551,10 @@ export default function Home() {
                       border: "2px solid var(--text-3)", borderTopColor: "var(--accent)",
                       borderRadius: "50%", animation: "spin 0.8s linear infinite",
                     }} />
-                    Scanning…
+                    {t("scanning")}
                   </>
                 ) : (
-                  <><Search size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />Extract Invoice Data</>
+                  <><Search size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />{t("extractInvoiceData")}</>
                 )}
               </button>
             )}
@@ -565,11 +564,11 @@ export default function Home() {
               background: "var(--surface)", border: "1px solid var(--border)",
               borderRadius: "var(--radius-md)", padding: "14px 16px",
             }}>
-              <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Tips for best results</p>
-              {["Use clear, well-lit photos", "Avoid cropping out any fields", "Higher resolution = better accuracy", "Works with printed & digital invoices"].map((t, i) => (
+              <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>{t("tipsTitle")}</p>
+              {[t("tip1"), t("tip2"), t("tip3"), t("tip4")].map((tipText, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, alignItems: "flex-start" }}>
                   <span style={{ color: "var(--success)", flexShrink: 0, marginTop: 1 }}>✓</span>
-                  <span style={{ color: "var(--text-2)", fontSize: 12 }}>{t}</span>
+                  <span style={{ color: "var(--text-2)", fontSize: 12 }}>{tipText}</span>
                 </div>
               ))}
             </div>
@@ -585,20 +584,12 @@ export default function Home() {
                 background: "var(--surface)",
                 border: "1px dashed var(--border)", borderRadius: "var(--radius-lg)",
               }}>
-                <div style={{ marginBottom: 12 }}><BarChart2 size={52} strokeWidth={1.2} color="var(--text-3)" /></div>
-                <p style={{ color: "var(--text-3)", fontSize: 14, maxWidth: 260 }}>
-                  Your extracted invoice data will appear here after scanning
+                <FileText size={44} strokeWidth={1.2} color="var(--accent-2)" style={{ opacity: 0.8, marginBottom: 4 }} />
+                <p style={{ color: "var(--text-2)", fontSize: 14, maxWidth: 300, lineHeight: 1.6 }}>
+                  {t("placeholderResult")}
                 </p>
               </div>
             )}
-
-            {state === "loading" && (
-              <>
-                <SkeletonCard />
-                <SkeletonCard />
-              </>
-            )}
-
             {state === "error" && !data && (
               <div className="anim-scale-in" style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
@@ -606,12 +597,12 @@ export default function Home() {
                 border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 40,
               }}>
                 <Frown size={44} strokeWidth={1.2} color="var(--danger)" style={{ marginBottom: 4 }} />
-                <p style={{ color: "var(--danger)", fontWeight: 600 }}>Extraction failed</p>
+                <p style={{ color: "var(--danger)", fontWeight: 600 }}>{t("extractionFailed")}</p>
                 <p style={{ color: "var(--text-3)", fontSize: 13, maxWidth: 320 }}>{error}</p>
                 <button id="retry-btn" onClick={reset} style={{
                   background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)",
                   color: "var(--text-2)", padding: "9px 24px", cursor: "pointer", fontSize: 13,
-                }}>Try Again</button>
+                }}>{t("tryAgain")}</button>
               </div>
             )}
 
@@ -619,27 +610,27 @@ export default function Home() {
               <>
                 {/* Success badge + actions */}
                 <div className="anim-fade-in" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <Badge color="success">✅ Extraction complete</Badge>
+                  <Badge color="success">✅ {t("extractionComplete")}</Badge>
                   <button id="scan-another-btn" onClick={reset} style={{
                     background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
                     color: "var(--text-2)", padding: "5px 14px", fontSize: 12, cursor: "pointer",
                     transition: "all var(--t)",
-                  }}>+ Scan another</button>
+                  }}>+ {t("scanAnother")}</button>
                   <button id="save-history-btn" onClick={handleSave} style={{
                     background: "var(--surface-3)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
                     color: "var(--text-1)", padding: "5px 14px", fontSize: 12, cursor: "pointer",
                     transition: "all var(--t)", fontWeight: 600,
                     display: "flex", alignItems: "center", gap: 6,
-                  }}><Save size={13} /> Save to History</button>
+                  }}><Save size={13} /> {t("saveToHistory")}</button>
                 </div>
 
                 {/* Vendor card */}
                 <Card delay={0.04} style={{ borderColor: "var(--border-lit)", boxShadow: "var(--shadow-glow)" }}>
                   <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Building2 size={14} /> Vendor
+                    <Building2 size={14} /> {t("vendor")}
                   </h2>
                   <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>
-                    {data.vendor_name ?? <span style={{ color: "var(--text-3)" }}>Unknown Vendor</span>}
+                    {data.vendor_name ?? <span style={{ color: "var(--text-3)" }}>—</span>}
                   </div>
                   {data.vendor_address && (
                     <div style={{ color: "var(--text-2)", fontSize: 13, marginTop: 4 }}>{data.vendor_address}</div>
@@ -649,31 +640,31 @@ export default function Home() {
                 {/* Invoice details */}
                 <Card delay={0.08}>
                   <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
-                    <ClipboardList size={14} /> Invoice Details
+                    <ClipboardList size={14} /> {t("invoiceDetails")}
                   </h2>
-                  <FieldRow label="Invoice #"      value={data.invoice_number} mono />
-                  <FieldRow label="Invoice Date"   value={data.invoice_date} />
-                  <FieldRow label="Due Date"       value={
+                  <FieldRow label={t("invoiceNumber")}      value={data.invoice_number} mono />
+                  <FieldRow label={t("date")}   value={data.invoice_date} />
+                  <FieldRow label={t("totalDue")}       value={
                     data.due_date
                       ? <span style={{ color: "var(--warning)", fontWeight: 600 }}>{data.due_date}</span>
                       : null
                   } />
-                  <FieldRow label="Payment Terms"  value={data.payment_terms} />
-                  <FieldRow label="Currency"       value={data.currency ? <Badge color="neutral">{data.currency}</Badge> : null} />
+                  <FieldRow label={t("settings")}  value={data.payment_terms} />
+                  <FieldRow label={t("settings")}       value={data.currency ? <Badge color="neutral">{data.currency}</Badge> : null} />
                 </Card>
 
                 {/* Line items */}
                 {data.line_items && data.line_items.length > 0 && (
                   <Card delay={0.12}>
                     <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Package size={14} /> Line Items
+                      <Package size={14} /> {t("lineItems")}
                     </h2>
                     <div style={{ overflowX: "auto" }}>
                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                         <thead>
                           <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                            {["Description", "Qty", "Unit Price", "Total"].map(h => (
-                              <th key={h} style={{ padding: "6px 0", textAlign: h === "Description" ? "left" : "right", color: "var(--text-3)", fontWeight: 500, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", paddingRight: h !== "Description" ? 0 : 12 }}>
+                            {[t("browse"), t("date"), t("basePrice"), t("amount")].map((h, i) => (
+                              <th key={i} style={{ padding: "6px 0", textAlign: i === 0 ? "left" : "right", color: "var(--text-3)", fontWeight: 500, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", paddingRight: i !== 0 ? 0 : 12 }}>
                                 {h}
                               </th>
                             ))}
@@ -697,12 +688,12 @@ export default function Home() {
                 {/* Totals */}
                 <Card delay={0.16} style={{ background: "linear-gradient(135deg, rgba(124,110,247,0.08) 0%, var(--surface) 100%)" }}>
                   <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
-                    <DollarSign size={14} /> Totals
+                    <DollarSign size={14} /> {t("totals")}
                   </h2>
-                  <FieldRow label="Subtotal" value={fmt(data.subtotal, data.currency ?? "USD")} />
-                  <FieldRow label="Tax"      value={fmt(data.tax_amount, data.currency ?? "USD")} />
+                  <FieldRow label={t("subtotal")} value={fmt(data.subtotal, data.currency ?? "USD")} />
+                  <FieldRow label={t("vatTax")}      value={fmt(data.tax_amount, data.currency ?? "USD")} />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0 4px", marginTop: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)" }}>Total Due</span>
+                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)" }}>{t("totalDue")}</span>
                     <span style={{
                       fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em",
                       background: "linear-gradient(135deg, var(--accent), var(--accent-2))",
@@ -717,7 +708,7 @@ export default function Home() {
                 {data.anomalies && data.anomalies.length > 0 && (
                   <Card delay={0.20} style={{ borderColor: "rgba(251,191,36,0.25)" }}>
                     <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--warning)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                      <AlertTriangle size={14} /> Anomalies Detected
+                      <AlertTriangle size={14} /> {t("anomaliesDetected")}
                     </h2>
                     {data.anomalies.map((a, i) => (
                       <div key={i} style={{
@@ -742,7 +733,7 @@ export default function Home() {
                     color: "var(--text-3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em",
                     userSelect: "none", listStyle: "none",
                   }}>
-                    {"{ }"} Raw JSON Output
+                    {"{ }"} {t("rawJsonOutput")}
                   </summary>
                   <pre style={{
                     padding: "0 16px 16px", margin: 0, fontSize: 11,
@@ -773,13 +764,13 @@ export default function Home() {
               <div style={{ position: "absolute", bottom: -2, right: -2, width: 40, height: 40, borderBottom: "4px solid #fff", borderRight: "4px solid #fff", borderRadius: "0 0 10px 0" }} />
               
               <div className="anim-fade-in" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", color: "rgba(255,255,255,0.6)", fontSize: 13, fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                Align invoice within frame
+                {t("alignInvoice")}
               </div>
             </div>
           </div>
 
           <div className="anim-fade-up" style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "40px 30px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent)", zIndex: 2 }}>
-            <button onClick={stopCamera} style={{ color: "#fff", background: "none", border: "none", fontSize: 16, fontWeight: 500, padding: 10, cursor: "pointer" }}>Cancel</button>
+            <button onClick={stopCamera} style={{ color: "#fff", background: "none", border: "none", fontSize: 16, fontWeight: 500, padding: 10, cursor: "pointer" }}>{t("cancel")}</button>
             <button onClick={capturePhoto} style={{ width: 72, height: 72, borderRadius: "50%", background: "none", border: "4px solid #fff", padding: 3, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
               <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#fff", transition: "transform 0.1s" }} onPointerDown={e => (e.currentTarget.style.transform = "scale(0.9)")} onPointerUp={e => (e.currentTarget.style.transform = "scale(1)")} onPointerLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
             </button>

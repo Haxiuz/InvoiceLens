@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { X, FileText, Settings, User, BarChart2, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "./LanguageProvider";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [secretUnlocked, setSecretUnlocked] = useState(false);
 
@@ -106,7 +108,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 16, fontWeight: "bold", color: "#fff"
             }}>IL</div>
-            <span style={{ fontWeight: 700, fontSize: 16, color: "var(--text-1)" }}>Menu</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: "var(--text-1)" }}>{t("menu")}</span>
           </div>
           <button
             onClick={() => setIsOpen(false)}
@@ -124,21 +126,21 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
         {/* Navigation */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 32 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>Navigation</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>{t("menu")}</p>
 
           {session ? (
             <>
               <Link href="/history" onClick={() => setIsOpen(false)} style={navLinkStyle}>
                 <FileText size={18} color="var(--accent)" />
-                Invoice History
+                {t("history")}
               </Link>
               <Link href="/profile" onClick={() => setIsOpen(false)} style={navLinkStyle}>
                 <User size={18} color="var(--accent)" />
-                Profile
+                {t("profile")}
               </Link>
               <Link href="/reports" onClick={() => setIsOpen(false)} style={navLinkStyle}>
                 <BarChart2 size={18} color="var(--accent)" />
-                Reports
+                {t("reports")}
               </Link>
             </>
           ) : (
@@ -148,14 +150,14 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
         {/* Preferences */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 32 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>Preferences</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>{t("settings")}</p>
           <Link
             href="/settings"
             onClick={() => setIsOpen(false)}
             style={navLinkStyle}
           >
             <Settings size={18} color="var(--accent)" />
-            Settings
+            {t("settings")}
           </Link>
         </div>
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Calendar, Building2, Hash, CreditCard, Tag, AlertTriangle, Package } from "lucide-react";
+import { useLanguage, Language } from "../../components/LanguageProvider";
 
 interface LineItem {
   description: string;
@@ -38,6 +39,17 @@ interface InvoiceRecord {
   createdAt: string;
 }
 
+const localeMap: Record<Language, string> = {
+  en: "en-US",
+  id: "id-ID",
+  es: "es-ES",
+  pt: "pt-PT",
+  zh: "zh-CN",
+  ru: "ru-RU",
+  ar: "ar-EG",
+  de: "de-DE",
+};
+
 function fmt(n: number | null | undefined, currency?: string | null): string {
   if (n == null) return "—";
   try {
@@ -52,6 +64,7 @@ export default function InvoiceDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
+  const { t, language } = useLanguage();
 
   const [record, setRecord] = useState<InvoiceRecord | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,7 +109,7 @@ export default function InvoiceDetailPage() {
     return (
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 24px", textAlign: "center" }}>
         <p style={{ color: "var(--danger)", marginBottom: 16 }}>⚠️ {error}</p>
-        <button onClick={() => router.back()} style={backBtnStyle}>← Go Back</button>
+        <button onClick={() => router.back()} style={backBtnStyle}>{t("backToHistory")}</button>
       </div>
     );
   }
@@ -104,7 +117,7 @@ export default function InvoiceDetailPage() {
   if (!record) {
     return (
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 24px", textAlign: "center", color: "var(--text-3)" }}>
-        Invoice not found.
+        {t("invoiceNotFound")}
       </div>
     );
   }
@@ -125,17 +138,17 @@ export default function InvoiceDetailPage() {
           onClick={() => router.back()}
           style={backBtnStyle}
         >
-          <ArrowLeft size={15} /> Back to History
+          <ArrowLeft size={15} /> {t("backToHistory")}
         </button>
       </div>
 
       <div className="anim-fade-up" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
-            {record.vendorName || "Unknown Vendor"}
+            {record.vendorName || t("unknownVendor")}
           </h1>
           <p style={{ color: "var(--text-3)", fontSize: 13 }}>
-            Invoice saved on {new Date(record.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            {t("invoiceSavedOn")} {new Date(record.createdAt).toLocaleDateString(localeMap[language], { year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
         <div style={{
@@ -145,7 +158,7 @@ export default function InvoiceDetailPage() {
           padding: "12px 20px",
           textAlign: "right",
         }}>
-          <p style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>Total Due</p>
+          <p style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>{t("totalDue")}</p>
           <p style={{ fontSize: 24, fontWeight: 800, background: "linear-gradient(135deg, var(--accent), var(--accent-2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             {fmt(record.totalAmount, currency)}
           </p>
@@ -154,35 +167,41 @@ export default function InvoiceDetailPage() {
 
       {/* Invoice Metadata */}
       <div className="anim-fade-up" style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "24px", marginBottom: 16 }}>
-        <h2 style={sectionHeading}><Hash size={14} /> Invoice Details</h2>
+        <h2 style={sectionHeading}><Hash size={14} /> {t("invoiceDetails")}</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 0 }}>
-          <MetaRow icon={<Hash size={13}/>} label="Invoice #" value={record.invoiceNumber} mono />
-          <MetaRow icon={<Calendar size={13}/>} label="Invoice Date" value={record.invoiceDate} />
-          <MetaRow icon={<Calendar size={13}/>} label="Due Date" value={parsed.due_date} warn />
-          <MetaRow icon={<CreditCard size={13}/>} label="Payment Terms" value={parsed.payment_terms} />
-          <MetaRow icon={<Tag size={13}/>} label="Currency" value={currency} />
-          <MetaRow icon={<Building2 size={13}/>} label="Vendor Address" value={parsed.vendor_address} />
+          <MetaRow icon={<Hash size={13}/>} label={t("invoiceNumber")} value={record.invoiceNumber} mono />
+          <MetaRow icon={<Calendar size={13}/>} label={t("date")} value={record.invoiceDate} />
+          <MetaRow icon={<Calendar size={13}/>} label={t("dueDate")} value={parsed.due_date} warn />
+          <MetaRow icon={<CreditCard size={13}/>} label={t("paymentTerms")} value={parsed.payment_terms} />
+          <MetaRow icon={<Tag size={13}/>} label={t("currency")} value={currency} />
+          <MetaRow icon={<Building2 size={13}/>} label={t("vendorAddress")} value={parsed.vendor_address} />
         </div>
       </div>
 
       {/* Line Items — ALWAYS shown, even if empty or 0 */}
       <div className="anim-fade-up" style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "24px", marginBottom: 16 }}>
-        <h2 style={sectionHeading}><Package size={14} /> Line Items</h2>
+        <h2 style={sectionHeading}><Package size={14} /> {t("lineItems")}</h2>
 
         {lineItems.length === 0 ? (
-          <p style={{ color: "var(--text-3)", fontSize: 13, padding: "8px 0" }}>No line items were extracted from this invoice.</p>
+          <p style={{ color: "var(--text-3)", fontSize: 13, padding: "8px 0" }}>{t("noLineItems")}</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 480 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                  {["#", "Description", "Qty", "Unit Price", "Total"].map(h => (
-                    <th key={h} style={{
+                  {[
+                    { id: "#", label: "#" },
+                    { id: "description", label: t("description") },
+                    { id: "qty", label: t("qty") },
+                    { id: "unitPrice", label: t("unitPrice") },
+                    { id: "total", label: t("total") }
+                  ].map(h => (
+                    <th key={h.id} style={{
                       padding: "8px 12px 8px 0",
-                      textAlign: h === "Description" || h === "#" ? "left" : "right",
+                      textAlign: h.id === "description" || h.id === "#" ? "left" : "right",
                       color: "var(--text-3)", fontWeight: 600, fontSize: 11,
                       textTransform: "uppercase", letterSpacing: "0.06em",
-                    }}>{h}</th>
+                    }}>{h.label}</th>
                   ))}
                 </tr>
               </thead>
@@ -191,7 +210,7 @@ export default function InvoiceDetailPage() {
                   <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td style={{ padding: "10px 12px 10px 0", color: "var(--text-3)", fontSize: 12, width: 28 }}>{i + 1}</td>
                     <td style={{ padding: "10px 12px 10px 0", color: "var(--text-1)", fontWeight: 500 }}>
-                      {item.description || <span style={{ color: "var(--text-3)", fontStyle: "italic" }}>No description</span>}
+                      {item.description || <span style={{ color: "var(--text-3)", fontStyle: "italic" }}>{t("noDescription")}</span>}
                     </td>
                     <td style={{ padding: "10px 12px 10px 0", textAlign: "right", color: "var(--text-2)" }}>
                       {item.quantity ?? <span style={{ color: "var(--text-3)" }}>—</span>}
@@ -212,11 +231,11 @@ export default function InvoiceDetailPage() {
 
       {/* Totals */}
       <div className="anim-fade-up" style={{ background: "linear-gradient(135deg, rgba(124,110,247,0.08) 0%, var(--surface) 100%)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "24px", marginBottom: 16 }}>
-        <h2 style={sectionHeading}>💰 Totals</h2>
-        <TotalRow label="Subtotal (Base Price)" value={fmt(parsed.subtotal ?? null, currency)} />
-        <TotalRow label="VAT / Tax" value={fmt(parsed.tax_amount ?? null, currency)} accent="var(--warning)" />
+        <h2 style={sectionHeading}>💰 {t("totals")}</h2>
+        <TotalRow label={t("subtotal")} value={fmt(parsed.subtotal ?? null, currency)} />
+        <TotalRow label={t("vatTax")} value={fmt(parsed.tax_amount ?? null, currency)} accent="var(--warning)" />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0 4px", marginTop: 8, borderTop: "2px solid var(--border-lit)" }}>
-          <span style={{ fontWeight: 700, fontSize: 15 }}>Total Due</span>
+          <span style={{ fontWeight: 700, fontSize: 15 }}>{t("totalDue")}</span>
           <span style={{ fontWeight: 800, fontSize: 22, background: "linear-gradient(135deg, var(--accent), var(--accent-2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             {fmt(parsed.grand_total ?? record.totalAmount, currency)}
           </span>
@@ -226,7 +245,7 @@ export default function InvoiceDetailPage() {
       {/* Anomalies */}
       {parsed.anomalies && parsed.anomalies.length > 0 && (
         <div className="anim-fade-up" style={{ background: "var(--warning-bg)", border: "1px solid rgba(251,191,36,0.25)", borderRadius: "var(--radius-lg)", padding: "24px", marginBottom: 16 }}>
-          <h2 style={{ ...sectionHeading, color: "var(--warning)" }}><AlertTriangle size={14} /> Anomalies Detected</h2>
+          <h2 style={{ ...sectionHeading, color: "var(--warning)" }}><AlertTriangle size={14} /> {t("anomaliesDetected")}</h2>
           {parsed.anomalies.map((a, i) => (
             <div key={i} style={{ display: "flex", gap: 10, padding: "8px 12px", marginBottom: 6, background: "rgba(251,191,36,0.06)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(251,191,36,0.15)" }}>
               <span style={{ color: "var(--warning)", flexShrink: 0 }}>!</span>

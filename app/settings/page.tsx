@@ -4,11 +4,13 @@ import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import { Moon, Sun, Zap, Settings as SettingsIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "../components/LanguageProvider";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     setMounted(true);
@@ -16,11 +18,25 @@ export default function SettingsPage() {
 
   if (!mounted) return null;
 
+  const formatSecretSub = (text: string) => {
+    const parts = text.split(/(Alt|9)/g);
+    return parts.map((part, index) => {
+      if (part === "Alt" || part === "9") {
+        return (
+          <kbd key={index} style={{ background: "var(--surface-3)", padding: "2px 8px", borderRadius: 4, fontFamily: "var(--font-mono)", fontSize: 12 }}>
+            {part}
+          </kbd>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
         <SettingsIcon size={28} color="var(--accent)" />
-        <h1 style={{ fontSize: 24, fontWeight: 700 }}>Settings</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700 }}>{t("settings")}</h1>
       </div>
 
       <div style={{ display: "grid", gap: 24, maxWidth: 600 }}>
@@ -39,8 +55,8 @@ export default function SettingsPage() {
               {theme === "dark" ? <Moon size={20} color="var(--accent-2)" /> : <Sun size={20} color="var(--warning)" />}
             </div>
             <div>
-              <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", display: "block" }}>Appearance</span>
-              <span style={{ fontSize: 13, color: "var(--text-2)" }}>Switch between light and dark mode</span>
+              <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", display: "block" }}>{t("appearance")}</span>
+              <span style={{ fontSize: 13, color: "var(--text-2)" }}>{t("appearanceSub")}</span>
             </div>
           </div>
           
@@ -80,9 +96,9 @@ export default function SettingsPage() {
             <Zap size={20} color="var(--accent)" />
           </div>
           <div>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", display: "block", marginBottom: 6 }}>Secret Feature</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", display: "block", marginBottom: 6 }}>{t("secretFeature")}</span>
             <span style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.5 }}>
-              Press <kbd style={{ background: "var(--surface-3)", padding: "2px 8px", borderRadius: 4, fontFamily: "var(--font-mono)", fontSize: 12 }}>Alt</kbd> + <kbd style={{ background: "var(--surface-3)", padding: "2px 8px", borderRadius: 4, fontFamily: "var(--font-mono)", fontSize: 12 }}>9</kbd> anywhere to activate Rainbow Mode!
+              {formatSecretSub(t("secretFeatureSub"))}
             </span>
           </div>
         </div>
