@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { ArrowLeft, Calendar, Building2, Hash, CreditCard, Tag, AlertTriangle, Package, Edit2, Save, X } from "lucide-react";
 import { useLanguage, Language } from "../../components/LanguageProvider";
 
@@ -63,6 +63,7 @@ export default function InvoiceDetailPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params?.id as string;
   const { t, language } = useLanguage();
 
@@ -84,6 +85,22 @@ export default function InvoiceDetailPage() {
         .then((data: InvoiceRecord) => {
           setRecord(data);
           setLoading(false);
+          
+          if (searchParams?.get("edit") === "true") {
+            let parsed = {};
+            try {
+              if (data.dataJson) parsed = JSON.parse(data.dataJson);
+            } catch {}
+            setEditForm({
+              vendorName: data.vendorName || "",
+              totalAmount: data.totalAmount ?? 0,
+              invoiceNumber: data.invoiceNumber || "",
+              invoiceDate: data.invoiceDate || "",
+              currency: data.currency || "USD",
+              ...parsed,
+            });
+            setIsEditing(true);
+          }
         })
         .catch(err => {
           setError(err.message);
@@ -92,7 +109,7 @@ export default function InvoiceDetailPage() {
     } else if (status === "unauthenticated") {
       setLoading(false);
     }
-  }, [status, id]);
+  }, [status, id, searchParams]);
 
   const handleEditToggle = () => {
     if (!isEditing && record) {
