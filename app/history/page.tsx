@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-import { Download, Trash2, Scissors, ChevronRight } from "lucide-react";
+import { Download, Trash2, Scissors, ChevronRight, Edit2 } from "lucide-react";
 import { useLanguage } from "../components/LanguageProvider";
 
 interface InvoiceRecord {
@@ -311,11 +311,23 @@ export default function HistoryPage() {
                       {fmtCurrency(inv.totalAmount, inv.currency)}
                     </td>
                     <td style={{ ...tdStyle, textAlign: "right" }}>
-                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", alignItems: "center" }}>
-                        <ChevronRight size={14} style={{ color: isHovered ? "var(--accent)" : "var(--text-3)", transition: "color 0.15s" }} />
+                      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", alignItems: "center" }}>
+                        <ChevronRight size={14} style={{ color: isHovered ? "var(--accent)" : "var(--text-3)", transition: "color 0.15s", marginRight: 4 }} />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/history/${inv.id}?edit=true`);
+                          }}
+                          style={{ background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", transition: "color 0.2s", padding: "4px" }}
+                          onMouseOver={e => e.currentTarget.style.color = "var(--accent)"}
+                          onMouseOut={e => e.currentTarget.style.color = "var(--text-3)"}
+                          title="Edit"
+                        >
+                          <Edit2 size={15} />
+                        </button>
                         <button
                           onClick={(e) => handleDelete(e, inv.id)}
-                          style={{ background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", transition: "color var(--t)", padding: "4px" }}
+                          style={{ background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", transition: "color 0.2s", padding: "4px" }}
                           onMouseOver={e => e.currentTarget.style.color = "var(--danger)"}
                           onMouseOut={e => e.currentTarget.style.color = "var(--text-3)"}
                           title="Delete"
