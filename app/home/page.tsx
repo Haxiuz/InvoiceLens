@@ -10,14 +10,15 @@ import {
   PieChart, Building2
 } from "lucide-react";
 import { useLanguage } from "../components/LanguageProvider";
+import EyeLoadingScreen from "../components/EyeLoadingScreen";
 
 interface InvoiceData {
   id: string;
-  vendor_name: string | null;
-  invoice_date: string | null;
-  grand_total: number | null;
+  vendorName: string | null;
+  invoiceDate: string | null;
+  totalAmount: number | null;
   currency: string | null;
-  created_at: string;
+  createdAt: string;
 }
 
 function fmt(n: number | null, currency = "IDR"): string {
@@ -85,26 +86,24 @@ export default function HomePage() {
   if (sessionStatus === "loading" || sessionStatus === "unauthenticated" || loading) {
     return (
       <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: "var(--text-3)", display: "flex", alignItems: "center", gap: 8 }}>
-          <Activity size={18} className="anim-pulse" /> Loading Dashboard...
-        </div>
+        <EyeLoadingScreen />
       </main>
     );
   }
 
   // Calculate stats
   const totalInvoices = invoices.length;
-  const totalSpent = invoices.reduce((sum, inv) => sum + (inv.grand_total || 0), 0);
+  const totalSpent = invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
   const avgSpent = totalInvoices > 0 ? totalSpent / totalInvoices : 0;
   
   // Recent invoices
-  const recentInvoices = [...invoices].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5);
+  const recentInvoices = [...invoices].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   // Top vendor
   const vendorCounts: Record<string, number> = {};
   invoices.forEach(i => {
-    if (i.vendor_name) {
-      vendorCounts[i.vendor_name] = (vendorCounts[i.vendor_name] || 0) + 1;
+    if (i.vendorName) {
+      vendorCounts[i.vendorName] = (vendorCounts[i.vendorName] || 0) + 1;
     }
   });
   let topVendor = "—";
@@ -190,12 +189,12 @@ export default function HomePage() {
                       <FileText size={18} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14, marginBottom: 4 }}>{inv.vendor_name || "Unknown Vendor"}</div>
-                      <div style={{ fontSize: 12, color: "var(--text-3)" }}>{new Date(inv.created_at).toLocaleDateString()}</div>
+                      <div style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14, marginBottom: 4 }}>{inv.vendorName || "Unknown Vendor"}</div>
+                      <div style={{ fontSize: 12, color: "var(--text-3)" }}>{new Date(inv.createdAt).toLocaleDateString()}</div>
                     </div>
                   </div>
                   <div style={{ fontWeight: 700, color: "var(--text-1)" }}>
-                    {fmt(inv.grand_total, inv.currency || "IDR")}
+                    {fmt(inv.totalAmount, inv.currency || "IDR")}
                   </div>
                 </div>
               ))}

@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-import { Download, Trash2, Scissors, ChevronRight, Edit2, TrendingUp, FileText, Users, Calendar, Receipt, FileDown } from "lucide-react";
+import { Download, Trash2, Scissors, ChevronRight, Edit2, TrendingUp, FileText, Users, Calendar, Receipt, FileDown, CheckCircle } from "lucide-react";
 import { useLanguage } from "../components/LanguageProvider";
+import EyeLoadingScreen from "../components/EyeLoadingScreen";
 
 interface InvoiceRecord {
   id: string;
@@ -94,6 +95,8 @@ export default function HistoryPage() {
   const router = useRouter();
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeduping, setIsDeduping] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
   const [sortBy, setSortBy] = useState<"default" | "date" | "amount">("default");
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
 
@@ -182,8 +185,9 @@ export default function HistoryPage() {
   };
 
   const handleRemoveDuplicates = async () => {
+    if (isDeduping) return;
     if (!confirm("Scan for and auto-delete all exact duplicate invoices?")) return;
-    setLoading(true);
+    setIsDeduping(true);
 
     const seen = new Set();
     const duplicates: string[] = [];
@@ -198,8 +202,9 @@ export default function HistoryPage() {
     }
 
     if (duplicates.length === 0) {
-      alert("No duplicate invoices found!");
-      setLoading(false);
+      setToastMsg("No duplicate invoices found!");
+      setTimeout(() => setToastMsg(""), 4000);
+      setIsDeduping(false);
       return;
     }
 
@@ -221,12 +226,14 @@ export default function HistoryPage() {
     }
 
     setInvoices(prev => prev.filter(inv => !successfulDeletes.includes(inv.id)));
-    setLoading(false);
+    setIsDeduping(false);
 
     if (deletedCount > 0) {
-      alert(`Successfully removed ${deletedCount} duplicate invoice(s)!`);
+      setToastMsg(`Successfully removed ${deletedCount} duplicate invoice(s)!`);
+      setTimeout(() => setToastMsg(""), 4000);
     } else {
-      alert("Failed to delete duplicates. Please try again.");
+      setToastMsg("Failed to delete duplicates. Please try again.");
+      setTimeout(() => setToastMsg(""), 4000);
     }
   };
 
@@ -301,8 +308,12 @@ export default function HistoryPage() {
 
 
 
-  if (status === "loading" || loading) {
-    return <div style={{ padding: "40px", textAlign: "center" }}>Loading history...</div>;
+  if (loading || status === "loading") {
+    return (
+      <div style={{ padding: "40px 24px", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <EyeLoadingScreen />
+      </div>
+    );
   }
 
   if (status === "unauthenticated") {
@@ -378,7 +389,21 @@ export default function HistoryPage() {
           </select>
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button onClick={handleRemoveDuplicates} style={{ ...btnStyle, background: "rgba(247, 110, 110, 0.1)", color: "var(--danger)", border: "1px solid rgba(247, 110, 110, 0.2)" }}><Scissors size={14}/> {t("autoDedupe")}</button>
+            <button
+              onClick={handleRemoveDuplicates}
+              disabled={isDeduping}
+              style={{
+                ...btnStyle,
+                color: "var(--warning)",
+                borderColor: "var(--warning)",
+                opacity: isDeduping ? 0.7 : 1,
+                cursor: isDeduping ? "not-allowed" : "pointer"
+              }}
+              onMouseEnter={e => !isDeduping && (e.currentTarget.style.background = "rgba(234,179,8,0.1)")}
+              onMouseLeave={e => !isDeduping && (e.currentTarget.style.background = "var(--surface-2)")}
+            >
+              {isDeduping ? "Deduping..." : <><Scissors size={14} /> {t("autoDedupe")}</>}
+            </button>
             <button onClick={exportPDF} style={btnStyle}><Download size={14}/> {t("pdf")}</button>
             <button onClick={exportExcel} style={btnStyle}><Download size={14}/> {t("excel")}</button>
             <button onClick={exportXML} style={btnStyle}><Download size={14}/> {t("xml")}</button>
@@ -491,6 +516,20 @@ export default function HistoryPage() {
       <p style={{ marginTop: 12, fontSize: 12, color: "var(--text-3)", textAlign: "center" }}>
         💡 {t("clickRowDetails")}
       </p>
+
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="anim-fade-up" style={{
+          position: "fixed", bottom: 24, right: 24, zIndex: 9999,
+          background: "var(--surface)", border: "1px solid var(--border-lit)",
+          padding: "12px 20px", borderRadius: "var(--radius-md)",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.4)", display: "flex", alignItems: "center", gap: 10,
+          color: "var(--text-1)", fontWeight: 500, fontSize: 14
+        }}>
+          <CheckCircle size={18} color="var(--success)" />
+          {toastMsg}
+        </div>
+      )}
     </div>
   );
 }

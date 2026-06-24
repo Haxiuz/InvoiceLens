@@ -8,7 +8,7 @@ import {
   ClipboardList, Package, DollarSign, AlertTriangle, Frown, Save, FileDown
 } from "lucide-react";
 import * as XLSX from "xlsx";
-import { useLanguage } from "../components/LanguageProvider";
+import EyeLoadingScreen from "../components/EyeLoadingScreen";
 
 /* ─── Types ─────────────────────────────────────────────── */
 interface LineItem {
@@ -181,6 +181,8 @@ export default function ScannerPage() {
   const [data, setData]         = useState<InvoiceData[] | null>(null);
   const [error, setError]       = useState<string>("");
   const [progress, setProgress] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
   const fileInputRef            = useRef<HTMLInputElement>(null);
   const cameraInputRef          = useRef<HTMLInputElement>(null);
   const dropRef                 = useRef<HTMLDivElement>(null);
@@ -280,12 +282,19 @@ export default function ScannerPage() {
   };
 
   const handleSave = async () => {
-    if (!data) return;
+    if (!data || isSaving) return;
+    setIsSaving(true);
     try {
       const res = await fetch("/api/invoices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       if (!res.ok) { const errData = await res.json().catch(() => ({})); throw new Error(errData.error || errData.details || res.statusText); }
-      alert(`Successfully saved ${data.length} invoice(s) to history!`);
-    } catch (err: any) { alert(`Failed to save invoice: ${err.message}`); }
+      setToastMsg(`Invoice(s) successfully saved!`);
+      setTimeout(() => setToastMsg(""), 4000);
+    } catch (err: any) { 
+      setToastMsg(`Failed to save invoice: ${err.message}`);
+      setTimeout(() => setToastMsg(""), 4000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const downloadTemplate = () => {
@@ -467,6 +476,9 @@ export default function ScannerPage() {
                 <p style={{ color: "var(--text-2)", fontSize: 14, maxWidth: 300, lineHeight: 1.6 }}>{t("placeholderResult")}</p>
               </div>
             )}
+            {state === "loading" && (
+              <EyeLoadingScreen text={t("extracting")} showProgress={true} progress={progress} />
+            )}
             {state === "error" && !data && (
               <div className="anim-scale-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, minHeight: 300, justifyContent: "center", textAlign: "center", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 40 }}>
                 <Frown size={44} strokeWidth={1.2} color="var(--danger)" style={{ marginBottom: 4 }} />
@@ -583,7 +595,9 @@ export default function ScannerPage() {
                   <Badge color="success">✅ {data.length} {t("extractionComplete")}</Badge>
                   <div style={{ display: "flex", gap: 12, marginLeft: "auto" }}>
                     <button id="scan-another-btn" onClick={reset} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", color: "var(--text-1)", padding: "10px 18px", fontSize: 14, cursor: "pointer", fontWeight: 500, transition: "all 0.2s" }} onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--border-lit)")} onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}>+ {t("scanAnother")}</button>
-                    <button id="save-history-btn" onClick={handleSave} style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%)", border: "none", borderRadius: "var(--radius-md)", color: "#fff", padding: "10px 22px", fontSize: 14, cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 14px var(--accent-glow)", transition: "all 0.2s" }}><Save size={16} /> {t("saveToHistory")}</button>
+                    <button id="save-history-btn" onClick={handleSave} disabled={isSaving} style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%)", border: "none", borderRadius: "var(--radius-md)", color: "#fff", padding: "10px 22px", fontSize: 14, cursor: isSaving ? "not-allowed" : "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 14px var(--accent-glow)", transition: "all 0.2s", opacity: isSaving ? 0.7 : 1 }}>
+                      {isSaving ? "Saving..." : <><Save size={16} /> {t("saveToHistory")}</>}
+                    </button>
                   </div>
                 </div>
               </>
