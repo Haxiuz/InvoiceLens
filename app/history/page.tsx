@@ -311,7 +311,7 @@ export default function HistoryPage() {
   if (loading || status === "loading") {
     return (
       <div style={{ padding: "40px 24px", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <EyeLoadingScreen />
+        <EyeLoadingScreen pageName="TRANSACTION HISTORY" />
       </div>
     );
   }

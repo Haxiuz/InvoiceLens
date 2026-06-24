@@ -86,7 +86,7 @@ export default function HomePage() {
   if (sessionStatus === "loading" || sessionStatus === "unauthenticated" || loading) {
     return (
       <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <EyeLoadingScreen />
+        <EyeLoadingScreen pageName="DASHBOARD" />
       </main>
     );
   }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-export default function EyeLoadingScreen({ text, showProgress, progress }: { text?: string, showProgress?: boolean, progress?: number }) {
+export default function EyeLoadingScreen({ text, showProgress, progress, pageName }: { text?: string, showProgress?: boolean, progress?: number, pageName?: string }) {
   const [dots, setDots] = useState(1);
 
   useEffect(() => {
@@ -20,6 +20,24 @@ export default function EyeLoadingScreen({ text, showProgress, progress }: { tex
           100% { transform: rotate(360deg) scale(1); }
         }
       `}} />
+      
+      {pageName && (
+        <div style={{
+          border: '2px solid #b30000',
+          padding: '16px 80px',
+          marginBottom: 32,
+          color: '#ff1a1a',
+          fontSize: 16,
+          fontWeight: 600,
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase',
+          background: 'rgba(179, 0, 0, 0.05)',
+          boxShadow: '0 0 20px rgba(179, 0, 0, 0.1)',
+        }}>
+          {pageName}
+        </div>
+      )}
+
       <div style={{
         width: 250, height: 250, 
         animation: 'eyeSpin 4s cubic-bezier(0.4, 0, 0.2, 1) infinite',
