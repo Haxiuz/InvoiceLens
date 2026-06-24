@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-import { Download, Trash2, Scissors, ChevronRight, Edit2 } from "lucide-react";
+import { Download, Trash2, Scissors, ChevronRight, Edit2, TrendingUp, FileText, Users, Calendar, Receipt, FileDown } from "lucide-react";
 import { useLanguage } from "../components/LanguageProvider";
 
 interface InvoiceRecord {
@@ -42,6 +42,50 @@ function fmtCurrency(n: number | null | undefined, currency: string | null) {
   } catch {
     return `Rp ${n.toLocaleString("id-ID")}`;
   }
+}
+
+function fmtCurrencyStr(n: number): string {
+  try {
+    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
+  } catch {
+    return `Rp ${n.toLocaleString("id-ID")}`;
+  }
+}
+
+function InsightCard({ icon, label, value, color = "var(--accent)" }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  color?: string;
+}) {
+  return (
+    <div style={{
+      background: "var(--surface)",
+      border: "1px solid var(--border)",
+      borderRadius: "var(--radius-md)",
+      padding: "16px 20px",
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: 8,
+          background: `${color}18`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          {icon}
+        </div>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+          {label}
+        </span>
+      </div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em" }}>
+        {value}
+      </div>
+    </div>
+  );
 }
 
 export default function HistoryPage() {
@@ -95,6 +139,30 @@ export default function HistoryPage() {
     const d = parseInvoiceData(inv);
     return sum + (d.subtotal || 0);
   }, 0), [sortedInvoices]);
+
+  const avgAmount = useMemo(() =>
+    sortedInvoices.length > 0 ? totalSum / sortedInvoices.length : 0,
+    [totalSum, sortedInvoices]);
+
+  const topVendor = useMemo(() => {
+    const counts: Record<string, number> = {};
+    sortedInvoices.forEach(inv => {
+      if (inv.vendorName) counts[inv.vendorName] = (counts[inv.vendorName] || 0) + 1;
+    });
+    const entries = Object.entries(counts);
+    if (entries.length === 0) return "—";
+    return entries.sort((a, b) => b[1] - a[1])[0][0];
+  }, [sortedInvoices]);
+
+  const dateRange = useMemo(() => {
+    const dates = sortedInvoices
+      .map(inv => inv.invoiceDate)
+      .filter(Boolean)
+      .sort() as string[];
+    if (dates.length === 0) return "—";
+    if (dates.length === 1) return dates[0];
+    return `${dates[0]} → ${dates[dates.length - 1]}`;
+  }, [sortedInvoices]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -231,6 +299,31 @@ export default function HistoryPage() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadTemplate = () => {
+    const templateData = [
+      {
+        Date: "YYYY-MM-DD",
+        Vendor: "Vendor Name",
+        "Invoice #": "INV-0001",
+        "Base Price": 0,
+        VAT: 0,
+        Amount: 0,
+        Currency: "IDR",
+        Notes: "",
+      },
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    // Style header row width
+    ws["!cols"] = [
+      { wch: 14 }, { wch: 24 }, { wch: 16 },
+      { wch: 14 }, { wch: 12 }, { wch: 14 },
+      { wch: 10 }, { wch: 20 },
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+    XLSX.writeFile(wb, "invoicelens-template.xlsx");
+  };
+
   if (status === "loading" || loading) {
     return <div style={{ padding: "40px", textAlign: "center" }}>Loading history...</div>;
   }
@@ -241,6 +334,55 @@ export default function HistoryPage() {
 
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 24px" }}>
+
+      {/* ── INSIGHT CARDS ── */}
+      {sortedInvoices.length > 0 && (
+        <div style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 13, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 16 }}>
+            Overview
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+            <InsightCard
+              icon={<TrendingUp size={16} color="var(--accent)" />}
+              label="Total Spend"
+              value={fmtCurrencyStr(totalSum)}
+              color="var(--accent)"
+            />
+            <InsightCard
+              icon={<Receipt size={16} color="var(--success)" />}
+              label="Invoices"
+              value={`${sortedInvoices.length} records`}
+              color="var(--success)"
+            />
+            <InsightCard
+              icon={<TrendingUp size={16} color="var(--accent-2)" />}
+              label="Avg Invoice"
+              value={fmtCurrencyStr(avgAmount)}
+              color="var(--accent-2)"
+            />
+            <InsightCard
+              icon={<Users size={16} color="var(--warning)" />}
+              label="Top Vendor"
+              value={topVendor}
+              color="var(--warning)"
+            />
+            <InsightCard
+              icon={<FileText size={16} color="var(--danger)" />}
+              label="Total VAT Paid"
+              value={fmtCurrencyStr(totalVAT)}
+              color="var(--danger)"
+            />
+            <InsightCard
+              icon={<Calendar size={16} color="var(--text-2)" />}
+              label="Date Range"
+              value={dateRange}
+              color="var(--text-2)"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── HEADER + CONTROLS ── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700 }}>{t("historicalTransactions")}</h1>
 
@@ -258,15 +400,19 @@ export default function HistoryPage() {
             <option value="amount">{t("sortAmount")}</option>
           </select>
 
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button onClick={handleRemoveDuplicates} style={{ ...btnStyle, background: "rgba(247, 110, 110, 0.1)", color: "var(--danger)", border: "1px solid rgba(247, 110, 110, 0.2)" }}><Scissors size={14}/> {t("autoDedupe")}</button>
             <button onClick={exportPDF} style={btnStyle}><Download size={14}/> {t("pdf")}</button>
             <button onClick={exportExcel} style={btnStyle}><Download size={14}/> {t("excel")}</button>
             <button onClick={exportXML} style={btnStyle}><Download size={14}/> {t("xml")}</button>
+            <button onClick={downloadTemplate} style={{ ...btnStyle, background: "rgba(124,110,247,0.08)", color: "var(--accent)", border: "1px solid rgba(124,110,247,0.2)" }}>
+              <FileDown size={14}/> Template
+            </button>
           </div>
         </div>
       </div>
 
+      {/* ── TABLE ── */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, minWidth: 750 }}>

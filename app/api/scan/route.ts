@@ -14,19 +14,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Gemini API key not configured on server." }, { status: 500 });
   }
 
-  let body: { base64: string; mimeType: string };
+  let body: { base64?: string; mimeType?: string; text?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { base64, mimeType } = body;
-  if (!base64 || !mimeType) {
-    return NextResponse.json({ error: "Missing base64 or mimeType." }, { status: 400 });
+  const { base64, mimeType, text } = body;
+  if (!base64 && !text) {
+    return NextResponse.json({ error: "Missing base64/mimeType or text." }, { status: 400 });
   }
 
-  const prompt = `You are an expert accounting AI. Analyze this invoice image using OCR and extract all structured data.
+  const prompt = `You are an expert accounting AI. Analyze this invoice data and extract all structured information.
 
 Return ONLY a valid JSON object — no markdown, no code fences, no explanation. Use this exact schema:
 {
@@ -42,7 +42,7 @@ Return ONLY a valid JSON object — no markdown, no code fences, no explanation.
   "subtotal": number_or_null,
   "tax_amount": number_or_null,
   "grand_total": number_or_null,
-  "currency": "USD/EUR/etc or null",
+  "currency": "USD/EUR/IDR/etc or null",
   "anomalies": ["list any issues found, empty array if none"]
 }
 
@@ -52,18 +52,23 @@ Rules:
 - All numeric values must be plain numbers, not strings
 - If you cannot read something, use null`;
 
+  // Build Gemini content parts based on input type
+  const parts: object[] = [{ text: prompt }];
+  if (text) {
+    // Text-based file (xlsx, xml, docx extracted text)
+    parts.push({ text: `\n\nInvoice data to analyze:\n${text}` });
+  } else if (base64 && mimeType) {
+    // Image or PDF
+    parts.push({ inline_data: { mime_type: mimeType, data: base64 } });
+  }
+
   const geminiRes = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            { inline_data: { mime_type: mimeType, data: base64 } },
-          ],
-        }],
+        contents: [{ parts }],
         generationConfig: { temperature: 0.1, maxOutputTokens: 2048 },
       }),
     }
@@ -76,8 +81,8 @@ Rules:
   }
 
   const json = await geminiRes.json();
-  const text: string = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  const cleaned = text.replace(/```json|```/g, "").trim();
+  const rawText: string = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  const cleaned = rawText.replace(/```json|```/g, "").trim();
 
   try {
     const data = JSON.parse(cleaned);
