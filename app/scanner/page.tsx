@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   FileText, FolderOpen, Camera, Search, Building2,
-  ClipboardList, Package, DollarSign, AlertTriangle, Frown, Save,
+  ClipboardList, Package, DollarSign, AlertTriangle, Frown, Save, FileDown
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useLanguage } from "../components/LanguageProvider";
@@ -286,6 +286,30 @@ export default function ScannerPage() {
     } catch (err: any) { alert(`Failed to save invoice: ${err.message}`); }
   };
 
+  const downloadTemplate = () => {
+    const templateData = [
+      {
+        Date: "YYYY-MM-DD",
+        Vendor: "Vendor Name",
+        "Invoice #": "INV-0001",
+        "Base Price": 0,
+        VAT: 0,
+        Amount: 0,
+        Currency: "IDR",
+        Notes: "",
+      },
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    ws["!cols"] = [
+      { wch: 14 }, { wch: 24 }, { wch: 16 },
+      { wch: 14 }, { wch: 12 }, { wch: 14 },
+      { wch: 10 }, { wch: 20 },
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+    XLSX.writeFile(wb, "invoicelens-template.xlsx");
+  };
+
   if (sessionStatus === "loading" || sessionStatus === "unauthenticated") {
     return <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ color: "var(--text-3)" }}>Loading…</div></main>;
   }
@@ -358,18 +382,26 @@ export default function ScannerPage() {
               style={{ display: "none" }} />
 
             {!file && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                {[
-                  { id: "browse-btn", icon: <FolderOpen size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />, label: t("browse"), action: () => fileInputRef.current?.click() },
-                  { id: "camera-btn", icon: <Camera size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />, label: t("takePhoto"), action: startCamera },
-                ].map(btn => (
-                  <button key={btn.id} id={btn.id} onClick={btn.action}
-                    style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", color: "var(--text-2)", padding: "11px 0", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all var(--t)", width: "100%" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-lit)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text-1)"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text-2)"; }}>
-                    {btn.icon}{btn.label}
-                  </button>
-                ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {[
+                    { id: "browse-btn", icon: <FolderOpen size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />, label: t("browse"), action: () => fileInputRef.current?.click() },
+                    { id: "camera-btn", icon: <Camera size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />, label: t("takePhoto"), action: startCamera },
+                  ].map(btn => (
+                    <button key={btn.id} id={btn.id} onClick={btn.action}
+                      style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", color: "var(--text-2)", padding: "11px 0", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all var(--t)", width: "100%" }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-lit)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text-1)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text-2)"; }}>
+                      {btn.icon}{btn.label}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={downloadTemplate}
+                  style={{ background: "rgba(124,110,247,0.08)", border: "1px solid rgba(124,110,247,0.2)", borderRadius: "var(--radius-md)", color: "var(--accent)", padding: "11px 0", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all var(--t)", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(124,110,247,0.15)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(124,110,247,0.08)"; }}>
+                  <FileDown size={16} /> Download Template
+                </button>
               </div>
             )}
 

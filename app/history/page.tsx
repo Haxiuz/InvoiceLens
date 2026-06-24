@@ -299,30 +299,7 @@ export default function HistoryPage() {
     URL.revokeObjectURL(url);
   };
 
-  const downloadTemplate = () => {
-    const templateData = [
-      {
-        Date: "YYYY-MM-DD",
-        Vendor: "Vendor Name",
-        "Invoice #": "INV-0001",
-        "Base Price": 0,
-        VAT: 0,
-        Amount: 0,
-        Currency: "IDR",
-        Notes: "",
-      },
-    ];
-    const ws = XLSX.utils.json_to_sheet(templateData);
-    // Style header row width
-    ws["!cols"] = [
-      { wch: 14 }, { wch: 24 }, { wch: 16 },
-      { wch: 14 }, { wch: 12 }, { wch: 14 },
-      { wch: 10 }, { wch: 20 },
-    ];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-    XLSX.writeFile(wb, "invoicelens-template.xlsx");
-  };
+
 
   if (status === "loading" || loading) {
     return <div style={{ padding: "40px", textAlign: "center" }}>Loading history...</div>;
@@ -405,9 +382,6 @@ export default function HistoryPage() {
             <button onClick={exportPDF} style={btnStyle}><Download size={14}/> {t("pdf")}</button>
             <button onClick={exportExcel} style={btnStyle}><Download size={14}/> {t("excel")}</button>
             <button onClick={exportXML} style={btnStyle}><Download size={14}/> {t("xml")}</button>
-            <button onClick={downloadTemplate} style={{ ...btnStyle, background: "rgba(124,110,247,0.08)", color: "var(--accent)", border: "1px solid rgba(124,110,247,0.2)" }}>
-              <FileDown size={14}/> Template
-            </button>
           </div>
         </div>
       </div>
