@@ -478,10 +478,12 @@ export default function ScannerPage() {
 
             {state === "done" && data && (
               <>
-                <div className="anim-fade-in" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+                <div className="anim-fade-in" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
                   <Badge color="success">✅ {data.length} {t("extractionComplete")}</Badge>
-                  <button id="scan-another-btn" onClick={reset} style={{ background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text-2)", padding: "5px 14px", fontSize: 12, cursor: "pointer" }}>+ {t("scanAnother")}</button>
-                  <button id="save-history-btn" onClick={handleSave} style={{ background: "var(--surface-3)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text-1)", padding: "5px 14px", fontSize: 12, cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}><Save size={13} /> {t("saveToHistory")}</button>
+                  <div style={{ display: "flex", gap: 12, marginLeft: "auto" }}>
+                    <button id="scan-another-btn" onClick={reset} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", color: "var(--text-1)", padding: "10px 18px", fontSize: 14, cursor: "pointer", fontWeight: 500, transition: "all 0.2s" }} onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--border-lit)")} onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}>+ {t("scanAnother")}</button>
+                    <button id="save-history-btn" onClick={handleSave} style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%)", border: "none", borderRadius: "var(--radius-md)", color: "#fff", padding: "10px 22px", fontSize: 14, cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 14px var(--accent-glow)", transition: "all 0.2s" }}><Save size={16} /> {t("saveToHistory")}</button>
+                  </div>
                 </div>
 
                 {data.length > 1 ? (
