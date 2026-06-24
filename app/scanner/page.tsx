@@ -301,10 +301,22 @@ export default function ScannerPage() {
 
     const ws = XLSX.utils.json_to_sheet(templateData);
 
-    // Apply formulas for VAT (11% of Base Price) and Amount (Base Price + VAT)
+    // Apply formulas for VAT, Amount, and Invoice Series
     for (let i = 2; i <= 51; i++) {
+      // VAT (11% of Base Price)
       ws[`E${i}`] = { t: "n", f: `D${i}*0.11` };
+      // Amount (Base Price + VAT)
       ws[`F${i}`] = { t: "n", f: `D${i}+E${i}` };
+      
+      // Auto-increment Invoice # for rows 3 and below
+      if (i > 2) {
+        // e.g. IF(C2="","",LEFT(C2,4)&TEXT(VALUE(RIGHT(C2,4))+1,"0000"))
+        ws[`C${i}`] = { t: "str", f: `IF(C${i-1}="","",LEFT(C${i-1},4)&TEXT(VALUE(RIGHT(C${i-1},4))+1,"0000"))` };
+      }
+
+      // Ensure Date column is formatted as Date in Excel
+      if (!ws[`A${i}`]) ws[`A${i}`] = { t: "s", v: "" };
+      ws[`A${i}`].z = "yyyy-mm-dd";
     }
 
     ws["!cols"] = [
