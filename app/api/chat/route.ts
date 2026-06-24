@@ -56,15 +56,23 @@ CRITICAL DIRECTIVES:
 5. Base your answers about the user's specific spending on the provided invoice data.
 `;
 
+    // Convert UIMessages to ModelMessages
+    const modelMessages = messages.map((m: any) => {
+      if (m.parts) {
+        return { role: m.role, content: m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n') };
+      }
+      return { role: m.role, content: m.content || "" };
+    });
+
     // Call the language model
     const result = streamText({
       model: google("gemini-1.5-flash"),
       system: systemPrompt,
-      messages,
+      messages: modelMessages,
     });
 
     // Respond with the stream
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("Chat API error:", error);
     return new Response("Error processing request", { status: 500 });
