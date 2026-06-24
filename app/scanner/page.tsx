@@ -287,19 +287,26 @@ export default function ScannerPage() {
   };
 
   const downloadTemplate = () => {
-    const templateData = [
-      {
-        Date: "YYYY-MM-DD",
-        Vendor: "Vendor Name",
-        "Invoice #": "INV-0001",
-        "Base Price": 0,
-        VAT: 0,
-        Amount: 0,
-        Currency: "IDR",
-        Notes: "",
-      },
-    ];
+    // Generate 50 empty rows for the template
+    const templateData = Array.from({ length: 50 }).map((_, i) => ({
+      Date: i === 0 ? "YYYY-MM-DD" : "",
+      Vendor: i === 0 ? "Vendor Name" : "",
+      "Invoice #": i === 0 ? "INV-0001" : "",
+      "Base Price": 0,
+      VAT: 0,
+      Amount: 0,
+      Currency: i === 0 ? "IDR" : "",
+      Notes: "",
+    }));
+
     const ws = XLSX.utils.json_to_sheet(templateData);
+
+    // Apply formulas for VAT (11% of Base Price) and Amount (Base Price + VAT)
+    for (let i = 2; i <= 51; i++) {
+      ws[`E${i}`] = { t: "n", f: `D${i}*0.11` };
+      ws[`F${i}`] = { t: "n", f: `D${i}+E${i}` };
+    }
+
     ws["!cols"] = [
       { wch: 14 }, { wch: 24 }, { wch: 16 },
       { wch: 14 }, { wch: 12 }, { wch: 14 },
