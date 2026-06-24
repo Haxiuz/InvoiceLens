@@ -7,6 +7,7 @@ import { LanguageProvider } from "./components/LanguageProvider";
 import Header from "./components/Header";
 import BottomNav from "./components/BottomNav";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
+import ChatButton from "./components/ChatButton";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -73,6 +74,7 @@ export default function RootLayout({
             <LanguageProvider>
               <Header />
               {children}
+              <ChatButton />
               <BottomNav />
               <IOSInstallPrompt />
             </LanguageProvider>

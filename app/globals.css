@@ -290,6 +290,22 @@ body {
 
 /* ─── MOBILE / PWA ──────────────────────────────────────────── */
 
+/* Hide specific items when not needed */
+.hide {
+  display: none !important;
+}
+
+/* Chat Button Positioning */
+.chat-button {
+  bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .chat-button {
+    bottom: calc(24px + 60px + env(safe-area-inset-bottom));
+  }
+}
+
 /* Hide bottom nav on desktop */
 .bottom-nav {
   display: none !important;
