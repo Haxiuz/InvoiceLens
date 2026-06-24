@@ -329,7 +329,7 @@ export default function HistoryPage() {
           <h2 style={{ fontSize: 13, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 16 }}>
             Overview
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 180px), 1fr))", gap: 12 }}>
             <InsightCard
               icon={<TrendingUp size={16} color="var(--accent)" />}
               label="Total Spend"

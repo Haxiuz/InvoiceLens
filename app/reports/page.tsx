@@ -253,7 +253,7 @@ export default function ReportsPage() {
       </div>
 
       {/* KPI cards — only real numbers */}
-      <div className="anim-fade-up" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 28 }}>
+      <div className="anim-fade-up" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))", gap: 12, marginBottom: 28 }}>
         {[
           { label: t("totalExpenses"),    value: fmt(f.totalExpenses, cur), color: "var(--danger)",   real: true },
           { label: t("totalVatPaid"),    value: fmt(f.totalVAT, cur),      color: "var(--warning)",  real: true },
@@ -306,36 +306,38 @@ export default function ReportsPage() {
           </span>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-          <tbody>
-            {rows.map(([item, amount], i) => {
-              const isSection = item === item.toUpperCase() && item.length > 3 && amount === "";
-              const isNA      = amount === NA;
-              const isNeg     = amount.startsWith("-");
-              const isBold    = !isNA && (item.toLowerCase().includes("total") || item.toLowerCase().includes("net") || item.toLowerCase().includes("ending") || item.toLowerCase().includes("ekuitas akhir") || item.toLowerCase().includes("patrimônio líquido final") || item.toLowerCase().includes("期末"));
-              return (
-                <tr key={i} style={{ borderBottom: "1px solid var(--border)", background: isSection ? "var(--surface-2)" : "transparent" }}>
-                  <td style={{
-                    padding: isSection ? "10px 24px" : "12px 24px 12px 36px",
-                    color: isSection ? "var(--accent-2)" : "var(--text-1)",
-                    fontWeight: isSection ? 700 : isBold ? 700 : 400,
-                    fontSize: isSection ? 11 : 14,
-                    textTransform: isSection ? "uppercase" : "none",
-                    letterSpacing: isSection ? "0.07em" : "normal",
-                  }}>{item}</td>
-                  <td style={{
-                    padding: isSection ? "10px 24px" : "12px 24px",
-                    textAlign: "right",
-                    color: isNA ? "var(--text-3)" : isNeg ? "var(--danger)" : isBold ? "var(--text-1)" : "var(--text-2)",
-                    fontWeight: isBold ? 700 : 400,
-                    fontStyle: isNA ? "italic" : "normal",
-                    fontSize: 13,
-                  }}>{amount}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div style={{ overflowX: "auto", width: "100%" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, minWidth: 400 }}>
+            <tbody>
+              {rows.map(([item, amount], i) => {
+                const isSection = item === item.toUpperCase() && item.length > 3 && amount === "";
+                const isNA      = amount === NA;
+                const isNeg     = amount.startsWith("-");
+                const isBold    = !isNA && (item.toLowerCase().includes("total") || item.toLowerCase().includes("net") || item.toLowerCase().includes("ending") || item.toLowerCase().includes("ekuitas akhir") || item.toLowerCase().includes("patrimônio líquido final") || item.toLowerCase().includes("期末"));
+                return (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border)", background: isSection ? "var(--surface-2)" : "transparent" }}>
+                    <td style={{
+                      padding: isSection ? "10px 16px" : "12px 16px 12px 24px",
+                      color: isSection ? "var(--accent-2)" : "var(--text-1)",
+                      fontWeight: isSection ? 700 : isBold ? 700 : 400,
+                      fontSize: isSection ? 11 : 14,
+                      textTransform: isSection ? "uppercase" : "none",
+                      letterSpacing: isSection ? "0.07em" : "normal",
+                    }}>{item}</td>
+                    <td style={{
+                      padding: isSection ? "10px 16px" : "12px 16px",
+                      textAlign: "right",
+                      color: isNA ? "var(--text-3)" : isNeg ? "var(--danger)" : isBold ? "var(--text-1)" : "var(--text-2)",
+                      fontWeight: isBold ? 700 : 400,
+                      fontStyle: isNA ? "italic" : "normal",
+                      fontSize: 13,
+                    }}>{amount}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
         <div style={{ padding: "16px 24px", borderTop: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", justifyContent: "flex-end", gap: 8 }}>
           <button onClick={exportReportPDF}   style={{ ...exportBtn, fontSize: 12 }}><Download size={12}/> PDF</button>

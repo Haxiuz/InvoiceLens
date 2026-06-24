@@ -148,7 +148,7 @@ export default function HomePage() {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 40 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 16, marginBottom: 40 }}>
         <StatCard 
           title="Total Spent" 
           value={fmt(totalSpent)} 
@@ -176,9 +176,9 @@ export default function HomePage() {
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,2fr) minmax(0,1fr)", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 20, alignItems: "flex-start" }}>
         {/* Recent Invoices */}
-        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 24 }}>
+        <div style={{ flex: "1 1 min(100%, 450px)", minWidth: 0, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 8 }}>
               <Clock size={16} color="var(--accent-2)" /> Recent Scans
@@ -197,15 +197,15 @@ export default function HomePage() {
               {recentInvoices.map(inv => (
                 <div key={inv.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", transition: "background 0.2s" }} className="hover-bg-surface-2">
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-2)" }}>
+                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-2)", flexShrink: 0 }}>
                       <FileText size={18} />
                     </div>
-                    <div>
-                      <div style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14, marginBottom: 4 }}>{inv.vendorName || "Unknown Vendor"}</div>
+                    <div style={{ minWidth: 0, overflow: "hidden" }}>
+                      <div style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{inv.vendorName || "Unknown Vendor"}</div>
                       <div style={{ fontSize: 12, color: "var(--text-3)" }}>{new Date(inv.createdAt).toLocaleDateString()}</div>
                     </div>
                   </div>
-                  <div style={{ fontWeight: 700, color: "var(--text-1)" }}>
+                  <div style={{ fontWeight: 700, color: "var(--text-1)", marginLeft: 8, whiteSpace: "nowrap" }}>
                     {fmt(inv.totalAmount, inv.currency || "IDR")}
                   </div>
                 </div>
@@ -215,7 +215,7 @@ export default function HomePage() {
         </div>
 
         {/* Quick Actions */}
-        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 24 }}>
+        <div style={{ flex: "1 1 250px", minWidth: 0, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 24 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", marginBottom: 20 }}>Quick Actions</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Link href="/scanner" style={{ display: "block", padding: 16, background: "var(--surface-2)", borderRadius: "var(--radius-md)", textDecoration: "none", color: "var(--text-1)", fontWeight: 600, fontSize: 14, border: "1px solid transparent", transition: "border 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "var(--border-lit)"} onMouseLeave={e => e.currentTarget.style.borderColor = "transparent"}>

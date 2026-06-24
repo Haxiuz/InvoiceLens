@@ -283,7 +283,7 @@ export default function InvoiceDetailPage() {
       {/* Invoice Metadata */}
       <div className="anim-fade-up" style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "24px", marginBottom: 16 }}>
         <h2 style={sectionHeading}><Hash size={14} /> {t("invoiceDetails")}</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", columnGap: 40, rowGap: 0 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", columnGap: 40, rowGap: 0 }}>
           <MetaRow icon={<Hash size={13}/>} label={t("invoiceNumber")} value={isEditing ? editForm.invoiceNumber : record.invoiceNumber} isEditing={isEditing} onChange={v => setEditForm({...editForm, invoiceNumber: v})} mono />
           <MetaRow icon={<Calendar size={13}/>} label={t("date")} value={isEditing ? editForm.invoiceDate : record.invoiceDate} isEditing={isEditing} onChange={v => setEditForm({...editForm, invoiceDate: v})} />
           <MetaRow icon={<Calendar size={13}/>} label={t("dueDate")} value={isEditing ? editForm.due_date : parsed.due_date} isEditing={isEditing} onChange={v => setEditForm({...editForm, due_date: v})} warn />

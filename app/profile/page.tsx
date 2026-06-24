@@ -112,10 +112,10 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr minmax(260px, 300px)", gap: 24, alignItems: "start" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 24, alignItems: "flex-start" }}>
 
         {/* Left: Form */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ flex: "1 1 min(100%, 400px)", minWidth: 0, display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Nickname */}
           <div className="anim-fade-up" style={cardStyle}>
@@ -138,20 +138,17 @@ export default function ProfilePage() {
             <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>{nickname.length}/30 {t("charactersLabel")}</p>
           </div>
 
-          {/* Avatar */}
-          <div className="anim-fade-up" style={cardStyle}>
+          {/* Avatar URL */}
+          <div className="anim-fade-up" style={{ ...cardStyle, animationDelay: "0.05s" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-              <div style={iconWrapStyle}><Camera size={16} color="var(--accent)" /></div>
+              <div style={iconWrapStyle}><ImageIcon size={16} color="var(--accent)" /></div>
               <div>
-                <h2 style={sectionTitle}>{t("profilePicture")}</h2>
+                <h2 style={sectionTitle}>{t("avatarImage")}</h2>
                 <p style={sectionSub}>{t("avatarSub")}</p>
               </div>
             </div>
             <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-              <button
-                onClick={() => avatarInputRef.current?.click()}
-                style={uploadBtnStyle}
-              >
+              <button onClick={() => avatarInputRef.current?.click()} style={uploadBtnStyle}>
                 📁 {t("uploadImage")}
               </button>
               <input
@@ -170,7 +167,7 @@ export default function ProfilePage() {
                 setAvatarUrl(e.target.value);
                 setAvatarPreview(e.target.value || null);
               }}
-              placeholder={t("pasteImageUrl")}
+              placeholder={session?.user?.image || t("pasteImageUrl")}
               style={inputStyle}
             />
             {avatarPreview && (
@@ -185,8 +182,8 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Background */}
-          <div className="anim-fade-up" style={cardStyle}>
+          {/* Background URL */}
+          <div className="anim-fade-up" style={{ ...cardStyle, animationDelay: "0.1s" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <div style={iconWrapStyle}><ImageIcon size={16} color="var(--accent)" /></div>
               <div>
@@ -256,7 +253,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Right: Live Preview */}
-        <div className="anim-fade-up" style={{ position: "sticky", top: 80 }}>
+        <div className="anim-fade-up" style={{ flex: "1 1 300px", minWidth: 0, position: "sticky", top: 80 }}>
           <div style={{ ...cardStyle, textAlign: "center" }}>
             <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 20 }}>{t("livePreview")}</p>
 
