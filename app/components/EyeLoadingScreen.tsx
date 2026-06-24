@@ -23,23 +23,19 @@ export default function EyeLoadingScreen({ text, showProgress, progress, pageNam
       
       {pageName && (
         <div style={{
-          border: '2px solid #b30000',
-          padding: '16px 80px',
-          marginBottom: 32,
-          color: '#ff1a1a',
+          marginBottom: 24,
+          color: 'var(--text-2)',
           fontSize: 16,
           fontWeight: 600,
-          letterSpacing: '0.15em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
-          background: 'rgba(179, 0, 0, 0.05)',
-          boxShadow: '0 0 20px rgba(179, 0, 0, 0.1)',
         }}>
           {pageName}
         </div>
       )}
 
       <div style={{
-        width: 250, height: 250, 
+        width: 60, height: 60, 
         animation: 'eyeSpin 4s cubic-bezier(0.4, 0, 0.2, 1) infinite',
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
@@ -64,17 +60,17 @@ export default function EyeLoadingScreen({ text, showProgress, progress, pageNam
           <circle cx="53" cy="47" r="4" fill="#fff" opacity="0.8"/>
         </svg>
       </div>
-      <div style={{ marginTop: 24, fontSize: 20, fontWeight: 600, color: 'var(--accent-2)', letterSpacing: '0.15em', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+      <div style={{ marginTop: 16, fontSize: 13, fontWeight: 600, color: 'var(--accent-2)', letterSpacing: '0.15em', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
         <div style={{ display: 'flex' }}>
           {text || "LOADING"}
           {!showProgress && (
-            <span style={{ display: 'inline-block', width: '24px', textAlign: 'left' }}>
+            <span style={{ display: 'inline-block', width: '16px', textAlign: 'left' }}>
               {'.'.repeat(dots)}
             </span>
           )}
         </div>
         {showProgress && progress !== undefined && (
-          <div style={{ marginTop: 16, width: 200, height: 4, background: "var(--surface-3)", borderRadius: 2, overflow: "hidden" }}>
+          <div style={{ marginTop: 12, width: 120, height: 3, background: "var(--surface-3)", borderRadius: 2, overflow: "hidden" }}>
             <div style={{ width: `${progress}%`, height: "100%", background: "linear-gradient(90deg, var(--accent), var(--accent-2))", transition: "width 0.3s ease-out" }} />
           </div>
         )}
