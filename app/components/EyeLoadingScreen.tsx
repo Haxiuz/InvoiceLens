@@ -21,7 +21,7 @@ export default function EyeLoadingScreen({ text, showProgress, progress }: { tex
         }
       `}} />
       <div style={{
-        width: 180, height: 180, 
+        width: 250, height: 250, 
         animation: 'eyeSpin 4s cubic-bezier(0.4, 0, 0.2, 1) infinite',
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
