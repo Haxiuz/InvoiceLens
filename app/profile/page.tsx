@@ -143,7 +143,7 @@ export default function ProfilePage() {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <div style={iconWrapStyle}><ImageIcon size={16} color="var(--accent)" /></div>
               <div>
-                <h2 style={sectionTitle}>{t("avatarImage")}</h2>
+                <h2 style={sectionTitle}>{t("profilePicture")}</h2>
                 <p style={sectionSub}>{t("avatarSub")}</p>
               </div>
             </div>
