@@ -4,6 +4,7 @@ import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { X, FileText, Settings, User, BarChart2, Sparkles, ScanLine, Home } from "lucide-react";
+import LogoIcon from "./LogoIcon";
 import { useEffect, useState } from "react";
 import { useLanguage } from "./LanguageProvider";
 
@@ -102,12 +103,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 4,
-              background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 16, fontWeight: "bold", color: "#fff"
-            }}>IL</div>
+            <LogoIcon size={32} />
             <span style={{ fontWeight: 700, fontSize: 16, color: "var(--text-1)" }}>{t("menu")}</span>
           </div>
           <button

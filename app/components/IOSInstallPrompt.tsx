@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Share, PlusSquare, X } from "lucide-react";
+import LogoIcon from "./LogoIcon";
 
 export default function IOSInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
@@ -65,12 +66,7 @@ export default function IOSInstallPrompt() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {/* Logo representation */}
-          <div style={{
-            width: 32, height: 32, borderRadius: 6,
-            background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, fontWeight: "bold", color: "#fff"
-          }}>IL</div>
+          <LogoIcon size={36} />
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1)" }}>Install InvoiceLens</h3>
             <p style={{ fontSize: 11, color: "var(--text-2)" }}>Add to Home Screen for a native experience</p>

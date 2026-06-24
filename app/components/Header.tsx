@@ -7,6 +7,7 @@ import { Menu, LogIn, LogOut, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import { useLanguage } from "./LanguageProvider";
+import LogoIcon from "./LogoIcon";
 import { Language } from "@/lib/translation";
 
 function LanguageSwitcher() {
@@ -165,13 +166,7 @@ export default function Header() {
           )}
           
           <Link href={session ? "/home" : "/"} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Boxy Logo */}
-            <div style={{
-              width: 36, height: 36, borderRadius: 4, // Boxy look (smaller border radius)
-              background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 0 16px var(--accent-glow)", fontSize: 18, fontWeight: "bold", color: "#fff"
-            }}>IL</div>
+            <LogoIcon size={36} />
             <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: "-0.02em", color: "var(--text-1)" }}>
               Invoice<span style={{ color: "var(--accent-2)" }}>Lens</span>
             </span>
