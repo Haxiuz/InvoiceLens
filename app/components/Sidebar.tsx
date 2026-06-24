@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { X, FileText, Settings, User, BarChart2, Sparkles, ScanLine } from "lucide-react";
+import { X, FileText, Settings, User, BarChart2, Sparkles, ScanLine, Home } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "./LanguageProvider";
 
@@ -128,18 +128,20 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 32 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>{t("menu")}</p>
 
-          {/* Scanner — always visible at top */}
-          <Link href="/" onClick={() => setIsOpen(false)} style={{
-            ...navLinkStyle,
-            background: "linear-gradient(135deg, rgba(124,110,247,0.12), rgba(167,139,250,0.07))",
-            borderColor: "rgba(124,110,247,0.3)",
-          }}>
-            <ScanLine size={18} color="var(--accent)" />
-            Scanner
-          </Link>
-
           {session ? (
             <>
+              <Link href="/home" onClick={() => setIsOpen(false)} style={{
+                ...navLinkStyle,
+                background: "linear-gradient(135deg, rgba(124,110,247,0.12), rgba(167,139,250,0.07))",
+                borderColor: "rgba(124,110,247,0.3)",
+              }}>
+                <Home size={18} color="var(--accent)" />
+                Home
+              </Link>
+              <Link href="/scanner" onClick={() => setIsOpen(false)} style={navLinkStyle}>
+                <ScanLine size={18} color="var(--accent)" />
+                Scanner
+              </Link>
               <Link href="/history" onClick={() => setIsOpen(false)} style={navLinkStyle}>
                 <FileText size={18} color="var(--accent)" />
                 {t("history")}

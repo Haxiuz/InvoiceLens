@@ -148,21 +148,23 @@ export default function Header() {
     }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button
-            onClick={() => setSidebarOpen(true)}
-            style={{
-              background: "transparent", border: "none", color: "var(--text-1)",
-              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-              padding: 6, borderRadius: "var(--radius-sm)", transition: "background 0.2s"
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = "var(--surface-2)"}
-            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-            aria-label="Open menu"
-          >
-            <Menu size={20} />
-          </button>
+          {session && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              style={{
+                background: "transparent", border: "none", color: "var(--text-1)",
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                padding: 6, borderRadius: "var(--radius-sm)", transition: "background 0.2s"
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--surface-2)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+          )}
           
-          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+          <Link href={session ? "/home" : "/"} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
             {/* Boxy Logo */}
             <div style={{
               width: 36, height: 36, borderRadius: 4, // Boxy look (smaller border radius)

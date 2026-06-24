@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, FileText, BarChart2, User } from "lucide-react";
 
+import { useSession } from "next-auth/react";
+
 const NAV_ITEMS = [
-  { href: "/",        label: "Home",    icon: Home },
+  { href: "/home",    label: "Home",    icon: Home },
   { href: "/history", label: "History", icon: FileText },
   { href: "/reports", label: "Reports", icon: BarChart2 },
   { href: "/profile", label: "Profile", icon: User },
@@ -13,6 +15,9 @@ const NAV_ITEMS = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { status } = useSession();
+
+  if (status !== "authenticated") return null;
 
   return (
     <nav
@@ -35,7 +40,7 @@ export default function BottomNav() {
       }}
     >
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-        const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+        const active = pathname.startsWith(href);
         return (
           <Link
             key={href}
