@@ -8,6 +8,7 @@ import {
   ClipboardList, Package, DollarSign, AlertTriangle, Frown, Save, FileDown
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import { useLanguage } from "../components/LanguageProvider";
 import EyeLoadingScreen from "../components/EyeLoadingScreen";
 
 /* ─── Types ─────────────────────────────────────────────── */
