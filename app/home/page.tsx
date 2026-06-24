@@ -65,12 +65,22 @@ export default function HomePage() {
 
   const [invoices, setInvoices] = useState<InvoiceData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [customNickname, setCustomNickname] = useState<string | null>(null);
 
   useEffect(() => {
     if (sessionStatus === "unauthenticated") {
       router.replace("/");
     }
   }, [sessionStatus, router]);
+
+  useEffect(() => {
+    setCustomNickname(localStorage.getItem("profileNickname"));
+    const handleStorageChange = () => {
+      setCustomNickname(localStorage.getItem("profileNickname"));
+    };
+    window.addEventListener("profileUpdated", handleStorageChange);
+    return () => window.removeEventListener("profileUpdated", handleStorageChange);
+  }, []);
 
   useEffect(() => {
     if (sessionStatus !== "authenticated") return;
@@ -112,13 +122,15 @@ export default function HomePage() {
     if (c > maxCount) { maxCount = c; topVendor = v; }
   }
 
+  const displayName = customNickname || session?.user?.name?.split(" ")[0] || "User";
+
   return (
     <main style={{ minHeight: "100vh", padding: "40px 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
       {/* Header */}
       <div style={{ marginBottom: 40, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 20 }}>
         <div>
           <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-1)", marginBottom: 8 }}>
-            Welcome back, {session?.user?.name?.split(" ")[0] || "User"}
+            Welcome back, {displayName}
           </h1>
           <p style={{ color: "var(--text-2)", fontSize: 15 }}>
             Here's what's happening with your invoices today.
