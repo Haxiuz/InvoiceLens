@@ -394,12 +394,12 @@ export default function HistoryPage() {
               disabled={isDeduping}
               style={{
                 ...btnStyle,
-                color: "var(--warning)",
-                borderColor: "var(--warning)",
+                color: "var(--danger)",
+                borderColor: "var(--danger)",
                 opacity: isDeduping ? 0.7 : 1,
                 cursor: isDeduping ? "not-allowed" : "pointer"
               }}
-              onMouseEnter={e => !isDeduping && (e.currentTarget.style.background = "rgba(234,179,8,0.1)")}
+              onMouseEnter={e => !isDeduping && (e.currentTarget.style.background = "rgba(239,68,68,0.1)")}
               onMouseLeave={e => !isDeduping && (e.currentTarget.style.background = "var(--surface-2)")}
             >
               {isDeduping ? "Deduping..." : <><Scissors size={14} /> {t("autoDedupe")}</>}
