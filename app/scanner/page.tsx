@@ -292,9 +292,9 @@ export default function ScannerPage() {
       Date: i === 0 ? "YYYY-MM-DD" : "",
       Vendor: i === 0 ? "Vendor Name" : "",
       "Invoice #": i === 0 ? "INV-0001" : "",
-      "Base Price": 0,
-      VAT: 0,
-      Amount: 0,
+      "Base Price": i === 0 ? 0 : "",
+      VAT: i === 0 ? 0 : "",
+      Amount: i === 0 ? 0 : "",
       Currency: i === 0 ? "IDR" : "",
       Notes: "",
     }));
@@ -303,15 +303,17 @@ export default function ScannerPage() {
 
     // Apply formulas for VAT, Amount, and Invoice Series
     for (let i = 2; i <= 51; i++) {
-      // VAT (11% of Base Price)
-      ws[`E${i}`] = { t: "n", f: `D${i}*0.11` };
+      // VAT (11% of Base Price) - only calculate if Base Price is not empty
+      ws[`E${i}`] = { t: "n", f: `IF(D${i}="","",D${i}*0.11)` };
       // Amount (Base Price + VAT)
-      ws[`F${i}`] = { t: "n", f: `D${i}+E${i}` };
+      ws[`F${i}`] = { t: "n", f: `IF(D${i}="","",D${i}+E${i})` };
       
-      // Auto-increment Invoice # for rows 3 and below
+      // Auto-increment Invoice # and fill Currency for rows 3 and below
       if (i > 2) {
-        // e.g. IF(C2="","",LEFT(C2,4)&TEXT(VALUE(RIGHT(C2,4))+1,"0000"))
-        ws[`C${i}`] = { t: "str", f: `IF(C${i-1}="","",LEFT(C${i-1},4)&TEXT(VALUE(RIGHT(C${i-1},4))+1,"0000"))` };
+        // Only increment if Vendor is filled, to prevent spewing down the entire sheet
+        ws[`C${i}`] = { t: "str", f: `IF(B${i}="","",LEFT(C${i-1},4)&TEXT(VALUE(RIGHT(C${i-1},4))+1,"0000"))` };
+        // Auto-fill currency if Base Price is filled
+        ws[`G${i}`] = { t: "str", f: `IF(D${i}="","","IDR")` };
       }
 
       // Ensure Date column is formatted as Date in Excel
