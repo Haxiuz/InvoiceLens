@@ -478,7 +478,7 @@ export default function ScannerPage() {
               </div>
             )}
             {state === "loading" && (
-              <EyeLoadingScreen text={t("extracting")} showProgress={true} progress={progress} />
+              <EyeLoadingScreen text={t("scanning")} showProgress={true} progress={progress} />
             )}
             {state === "error" && !data && (
               <div className="anim-scale-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, minHeight: 300, justifyContent: "center", textAlign: "center", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 40 }}>
