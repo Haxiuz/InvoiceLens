@@ -26,25 +26,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing base64/mimeType or text." }, { status: 400 });
   }
 
-  const prompt = `You are an expert accounting AI. Analyze this invoice data and extract all structured information.
+const prompt = `You are an expert accounting AI. Analyze this invoice data and extract all structured information.
 
-Return ONLY a valid JSON object — no markdown, no code fences, no explanation. Use this exact schema:
-{
-  "vendor_name": "string or null",
-  "vendor_address": "string or null",
-  "invoice_number": "string or null",
-  "invoice_date": "YYYY-MM-DD or null",
-  "due_date": "YYYY-MM-DD or null",
-  "payment_terms": "string or null",
-  "line_items": [
-    { "description": "string", "quantity": number_or_null, "unit_price": number_or_null, "total": number_or_null }
-  ],
-  "subtotal": number_or_null,
-  "tax_amount": number_or_null,
-  "grand_total": number_or_null,
-  "currency": "USD/EUR/IDR/etc or null",
-  "anomalies": ["list any issues found, empty array if none"]
-}
+Return ONLY a valid JSON ARRAY of objects — no markdown, no code fences, no explanation. Even if there is only one invoice, return it inside an array. Use this exact schema for EACH object in the array:
+[
+  {
+    "vendor_name": "string or null",
+    "vendor_address": "string or null",
+    "invoice_number": "string or null",
+    "invoice_date": "YYYY-MM-DD or null",
+    "due_date": "YYYY-MM-DD or null",
+    "payment_terms": "string or null",
+    "line_items": [
+      { "description": "string", "quantity": number_or_null, "unit_price": number_or_null, "total": number_or_null }
+    ],
+    "subtotal": number_or_null,
+    "tax_amount": number_or_null,
+    "grand_total": number_or_null,
+    "currency": "USD/EUR/IDR/etc or null",
+    "anomalies": ["list any issues found, empty array if none"]
+  }
+]
 
 Rules:
 - line_items must be an array (empty if none found)

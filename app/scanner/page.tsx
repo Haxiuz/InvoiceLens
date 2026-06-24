@@ -178,7 +178,7 @@ export default function ScannerPage() {
   const [fileText, setFileText] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [state, setState]       = useState<AppState>("idle");
-  const [data, setData]         = useState<InvoiceData | null>(null);
+  const [data, setData]         = useState<InvoiceData[] | null>(null);
   const [error, setError]       = useState<string>("");
   const [progress, setProgress] = useState(0);
   const fileInputRef            = useRef<HTMLInputElement>(null);
@@ -243,8 +243,10 @@ export default function ScannerPage() {
       const body = fileText !== null ? { text: fileText } : { base64: await fileToBase64(file), mimeType: file.type };
       const res = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { error?: string }).error || `Server error ${res.status}`); }
-      const result = await res.json() as InvoiceData;
-      setData(result); setProgress(100);
+      const result = await res.json();
+      // Ensure result is always an array
+      const dataArray = Array.isArray(result) ? result : [result];
+      setData(dataArray); setProgress(100);
       setTimeout(() => setState("done"), 300);
     } catch (e) { setState("error"); setError(e instanceof Error ? e.message : "Unknown error occurred"); }
   };
@@ -282,7 +284,7 @@ export default function ScannerPage() {
     try {
       const res = await fetch("/api/invoices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       if (!res.ok) { const errData = await res.json().catch(() => ({})); throw new Error(errData.error || errData.details || res.statusText); }
-      alert("Invoice saved to history!");
+      alert(`Successfully saved ${data.length} invoice(s) to history!`);
     } catch (err: any) { alert(`Failed to save invoice: ${err.message}`); }
   };
 
@@ -476,72 +478,102 @@ export default function ScannerPage() {
 
             {state === "done" && data && (
               <>
-                <div className="anim-fade-in" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <Badge color="success">✅ {t("extractionComplete")}</Badge>
+                <div className="anim-fade-in" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+                  <Badge color="success">✅ {data.length} {t("extractionComplete")}</Badge>
                   <button id="scan-another-btn" onClick={reset} style={{ background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text-2)", padding: "5px 14px", fontSize: 12, cursor: "pointer" }}>+ {t("scanAnother")}</button>
                   <button id="save-history-btn" onClick={handleSave} style={{ background: "var(--surface-3)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text-1)", padding: "5px 14px", fontSize: 12, cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}><Save size={13} /> {t("saveToHistory")}</button>
                 </div>
 
-                <Card delay={0.04} style={{ borderColor: "var(--border-lit)", boxShadow: "var(--shadow-glow)" }}>
-                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}><Building2 size={14} /> {t("vendor")}</h2>
-                  <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>{data.vendor_name ?? <span style={{ color: "var(--text-3)" }}>—</span>}</div>
-                  {data.vendor_address && <div style={{ color: "var(--text-2)", fontSize: 13, marginTop: 4 }}>{data.vendor_address}</div>}
-                </Card>
-
-                <Card delay={0.08}>
-                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><ClipboardList size={14} /> {t("invoiceDetails")}</h2>
-                  <FieldRow label={t("invoiceNumber")} value={data.invoice_number} mono />
-                  <FieldRow label={t("date")} value={data.invoice_date} />
-                  <FieldRow label={t("totalDue")} value={data.due_date ? <span style={{ color: "var(--warning)", fontWeight: 600 }}>{data.due_date}</span> : null} />
-                  <FieldRow label="Payment Terms" value={data.payment_terms} />
-                  <FieldRow label="Currency" value={data.currency ? <Badge color="neutral">{data.currency}</Badge> : null} />
-                </Card>
-
-                {data.line_items && data.line_items.length > 0 && (
-                  <Card delay={0.12}>
-                    <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}><Package size={14} /> {t("lineItems")}</h2>
+                {data.length > 1 ? (
+                  <Card delay={0.04} style={{ borderColor: "var(--border-lit)", boxShadow: "var(--shadow-glow)" }}>
+                    <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--accent-2)", marginBottom: 14 }}>Extracted {data.length} Invoices (Bulk Import)</h2>
                     <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                        <thead><tr style={{ borderBottom: "1px solid var(--border)" }}>
-                          {["Description", "Qty", "Unit Price", "Total"].map((h, i) => (
-                            <th key={i} style={{ padding: "6px 0", textAlign: i === 0 ? "left" : "right", color: "var(--text-3)", fontWeight: 500, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", paddingRight: i !== 0 ? 0 : 12 }}>{h}</th>
-                          ))}
-                        </tr></thead>
-                        <tbody>{data.line_items.map((item, i) => (
-                          <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
-                            <td style={{ padding: "10px 12px 10px 0", color: "var(--text-1)" }}>{item.description}</td>
-                            <td style={{ padding: "10px 0", textAlign: "right", color: "var(--text-2)" }}>{item.quantity ?? "—"}</td>
-                            <td style={{ padding: "10px 0", textAlign: "right", color: "var(--text-2)" }}>{fmt(item.unit_price, data.currency ?? "IDR")}</td>
-                            <td style={{ padding: "10px 0", textAlign: "right", color: "var(--text-1)", fontWeight: 600 }}>{fmt(item.total, data.currency ?? "IDR")}</td>
+                      <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr style={{ borderBottom: "1px solid var(--border)", textAlign: "left" }}>
+                            <th style={{ padding: "10px 0", color: "var(--text-3)", fontWeight: 500 }}>Vendor</th>
+                            <th style={{ padding: "10px 0", color: "var(--text-3)", fontWeight: 500 }}>Invoice #</th>
+                            <th style={{ padding: "10px 0", color: "var(--text-3)", fontWeight: 500 }}>Date</th>
+                            <th style={{ padding: "10px 0", color: "var(--text-3)", fontWeight: 500, textAlign: "right" }}>Total</th>
                           </tr>
-                        ))}</tbody>
+                        </thead>
+                        <tbody>
+                          {data.map((inv, i) => (
+                            <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                              <td style={{ padding: "10px 0", color: "var(--text-1)", fontWeight: 500 }}>{inv.vendor_name || "—"}</td>
+                              <td style={{ padding: "10px 0", color: "var(--text-2)" }}>{inv.invoice_number || "—"}</td>
+                              <td style={{ padding: "10px 0", color: "var(--text-2)" }}>{inv.invoice_date || "—"}</td>
+                              <td style={{ padding: "10px 0", color: "var(--text-1)", fontWeight: 600, textAlign: "right" }}>{fmt(inv.grand_total, inv.currency || "IDR")}</td>
+                            </tr>
+                          ))}
+                        </tbody>
                       </table>
                     </div>
                   </Card>
-                )}
+                ) : (
+                  <>
+                    <Card delay={0.04} style={{ borderColor: "var(--border-lit)", boxShadow: "var(--shadow-glow)" }}>
+                      <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}><Building2 size={14} /> {t("vendor")}</h2>
+                      <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>{data[0].vendor_name ?? <span style={{ color: "var(--text-3)" }}>—</span>}</div>
+                      {data[0].vendor_address && <div style={{ color: "var(--text-2)", fontSize: 13, marginTop: 4 }}>{data[0].vendor_address}</div>}
+                    </Card>
 
-                <Card delay={0.16} style={{ background: "linear-gradient(135deg, rgba(124,110,247,0.08) 0%, var(--surface) 100%)" }}>
-                  <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><DollarSign size={14} /> {t("totals")}</h2>
-                  <FieldRow label={t("subtotal")} value={fmt(data.subtotal, data.currency ?? "IDR")} />
-                  <FieldRow label={t("vatTax")} value={fmt(data.tax_amount, data.currency ?? "IDR")} />
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0 4px", marginTop: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)" }}>{t("totalDue")}</span>
-                    <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em", background: "linear-gradient(135deg, var(--accent), var(--accent-2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                      {fmt(data.grand_total, data.currency ?? "IDR")}
-                    </span>
-                  </div>
-                </Card>
+                    <Card delay={0.08}>
+                      <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><ClipboardList size={14} /> {t("invoiceDetails")}</h2>
+                      <FieldRow label={t("invoiceNumber")} value={data[0].invoice_number} mono />
+                      <FieldRow label={t("date")} value={data[0].invoice_date} />
+                      <FieldRow label={t("totalDue")} value={data[0].due_date ? <span style={{ color: "var(--warning)", fontWeight: 600 }}>{data[0].due_date}</span> : null} />
+                      <FieldRow label="Payment Terms" value={data[0].payment_terms} />
+                      <FieldRow label="Currency" value={data[0].currency ? <Badge color="neutral">{data[0].currency}</Badge> : null} />
+                    </Card>
 
-                {data.anomalies && data.anomalies.length > 0 && (
-                  <Card delay={0.20} style={{ borderColor: "rgba(251,191,36,0.25)" }}>
-                    <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--warning)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={14} /> {t("anomaliesDetected")}</h2>
-                    {data.anomalies.map((a, i) => (
-                      <div key={i} style={{ display: "flex", gap: 10, padding: "8px 12px", marginBottom: 6, background: "var(--warning-bg)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(251,191,36,0.15)" }}>
-                        <span style={{ color: "var(--warning)", flexShrink: 0 }}>!</span>
-                        <span style={{ color: "var(--text-2)", fontSize: 13 }}>{a}</span>
+                    {data[0].line_items && data[0].line_items.length > 0 && (
+                      <Card delay={0.12}>
+                        <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}><Package size={14} /> {t("lineItems")}</h2>
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                            <thead><tr style={{ borderBottom: "1px solid var(--border)" }}>
+                              {["Description", "Qty", "Unit Price", "Total"].map((h, i) => (
+                                <th key={i} style={{ padding: "6px 0", textAlign: i === 0 ? "left" : "right", color: "var(--text-3)", fontWeight: 500, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", paddingRight: i !== 0 ? 0 : 12 }}>{h}</th>
+                              ))}
+                            </tr></thead>
+                            <tbody>{data[0].line_items.map((item, i) => (
+                              <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                                <td style={{ padding: "10px 12px 10px 0", color: "var(--text-1)" }}>{item.description}</td>
+                                <td style={{ padding: "10px 0", textAlign: "right", color: "var(--text-2)" }}>{item.quantity ?? "—"}</td>
+                                <td style={{ padding: "10px 0", textAlign: "right", color: "var(--text-2)" }}>{fmt(item.unit_price, data[0].currency ?? "IDR")}</td>
+                                <td style={{ padding: "10px 0", textAlign: "right", color: "var(--text-1)", fontWeight: 600 }}>{fmt(item.total, data[0].currency ?? "IDR")}</td>
+                              </tr>
+                            ))}</tbody>
+                          </table>
+                        </div>
+                      </Card>
+                    )}
+
+                    <Card delay={0.16} style={{ background: "linear-gradient(135deg, rgba(124,110,247,0.08) 0%, var(--surface) 100%)" }}>
+                      <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-2)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><DollarSign size={14} /> {t("totals")}</h2>
+                      <FieldRow label={t("subtotal")} value={fmt(data[0].subtotal, data[0].currency ?? "IDR")} />
+                      <FieldRow label={t("vatTax")} value={fmt(data[0].tax_amount, data[0].currency ?? "IDR")} />
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0 4px", marginTop: 4 }}>
+                        <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)" }}>{t("totalDue")}</span>
+                        <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em", background: "linear-gradient(135deg, var(--accent), var(--accent-2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                          {fmt(data[0].grand_total, data[0].currency ?? "IDR")}
+                        </span>
                       </div>
-                    ))}
-                  </Card>
+                    </Card>
+
+                    {data[0].anomalies && data[0].anomalies.length > 0 && (
+                      <Card delay={0.20} style={{ borderColor: "rgba(251,191,36,0.25)" }}>
+                        <h2 style={{ fontSize: 12, fontWeight: 600, color: "var(--warning)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={14} /> {t("anomaliesDetected")}</h2>
+                        {data[0].anomalies.map((a, i) => (
+                          <div key={i} style={{ display: "flex", gap: 10, padding: "8px 12px", marginBottom: 6, background: "var(--warning-bg)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(251,191,36,0.15)" }}>
+                            <span style={{ color: "var(--warning)", flexShrink: 0 }}>!</span>
+                            <span style={{ color: "var(--text-2)", fontSize: 13 }}>{a}</span>
+                          </div>
+                        ))}
+                      </Card>
+                    )}
+                  </>
                 )}
 
                 <details style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)" }}>
