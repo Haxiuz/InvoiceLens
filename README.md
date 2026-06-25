@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/favicon.ico" alt="InvoiceLens Logo" width="120" />
+  <img src="app/favicon.ico" alt="InvoiceLens Logo" width="120" />
   
   # 👁️ InvoiceLens
   **Your Personal AI Financial Assistant & Smart Invoice Scanner**
