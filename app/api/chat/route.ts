@@ -61,6 +61,7 @@ export async function POST(req: Request) {
     if (!session || !session.user) {
       return new Response("Unauthorized", { status: 401 });
     }
+
     const userId = (session.user as any).id;
     if (!userId) {
       return new Response("Unauthorized", { status: 401 });
@@ -110,7 +111,7 @@ CRITICAL DIRECTIVES:
 
     // Call the language model
     const result = streamText({
-      model: google("gemini-1.5-flash"),
+      model: google("gemini-3.5-flash"),
       system: systemPrompt,
       messages: modelMessages,
     });
