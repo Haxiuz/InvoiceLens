@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/icons/icon-512.png" alt="InvoiceLens Logo" width="120" />
+  <img src="public/icons/icon-512.png?v=3" alt="InvoiceLens Logo" width="120" />
   
   # 👁️ InvoiceLens
   **Your Personal AI Financial Assistant & Smart Invoice Scanner**
