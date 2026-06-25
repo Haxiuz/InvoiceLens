@@ -130,10 +130,10 @@ export default function HomePage() {
       <div style={{ marginBottom: 40, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 20 }}>
         <div>
           <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-1)", marginBottom: 8 }}>
-            Welcome back, {displayName}
+            {t("welcomeBack")} {displayName}
           </h1>
           <p style={{ color: "var(--text-2)", fontSize: 15 }}>
-            Here's what's happening with your invoices today.
+            {t("whatsHappening")}
           </p>
         </div>
         <Link href="/scanner" style={{
@@ -150,28 +150,28 @@ export default function HomePage() {
       {/* Stats Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 16, marginBottom: 40 }}>
         <StatCard 
-          title="Total Spent" 
+          title={t("totalSpentHome")} 
           value={fmt(totalSpent)} 
-          sub="Across all scanned invoices" 
+          sub={t("acrossAllInvoices")} 
           icon={<DollarSign size={20} />} 
           trend="up" 
         />
         <StatCard 
-          title="Total Invoices" 
+          title={t("totalInvoicesHome")} 
           value={totalInvoices.toString()} 
-          sub="Processed by AI" 
+          sub={t("processedByAI")} 
           icon={<CheckCircle size={20} />} 
         />
         <StatCard 
-          title="Avg. Invoice Value" 
+          title={t("avgInvoiceValueHome")} 
           value={fmt(avgSpent)} 
-          sub="Average spending per invoice" 
+          sub={t("avgSpendingPerInvoice")} 
           icon={<PieChart size={20} />} 
         />
         <StatCard 
-          title="Top Vendor" 
+          title={t("topVendorHome")} 
           value={topVendor} 
-          sub={`${maxCount} invoices scanned`} 
+          sub={t("invoicesScannedCount").replace('{count}', maxCount.toString())} 
           icon={<Building2 size={20} />} 
         />
       </div>
@@ -184,13 +184,13 @@ export default function HomePage() {
               <Clock size={16} color="var(--accent-2)" /> Recent Scans
             </h2>
             <Link href="/history" style={{ fontSize: 13, color: "var(--accent)", fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-              View All <ArrowRight size={14} />
+              {t("viewAllHome")} <ArrowRight size={14} />
             </Link>
           </div>
 
           {recentInvoices.length === 0 ? (
             <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-3)", fontSize: 14 }}>
-              No invoices scanned yet.
+              {t("noInvoicesScanned")}
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -201,7 +201,7 @@ export default function HomePage() {
                       <FileText size={18} />
                     </div>
                     <div style={{ minWidth: 0, overflow: "hidden" }}>
-                      <div style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{inv.vendorName || "Unknown Vendor"}</div>
+                      <div style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{inv.vendorName || t('unknownVendor')}</div>
                       <div style={{ fontSize: 12, color: "var(--text-3)" }}>{new Date(inv.createdAt).toLocaleDateString()}</div>
                     </div>
                   </div>
@@ -216,13 +216,13 @@ export default function HomePage() {
 
         {/* Quick Actions */}
         <div style={{ flex: "1 1 250px", minWidth: 0, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 24 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", marginBottom: 20 }}>Quick Actions</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", marginBottom: 20 }}>{t("quickActionsHome")}</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Link href="/scanner" style={{ display: "block", padding: 16, background: "var(--surface-2)", borderRadius: "var(--radius-md)", textDecoration: "none", color: "var(--text-1)", fontWeight: 600, fontSize: 14, border: "1px solid transparent", transition: "border 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "var(--border-lit)"} onMouseLeave={e => e.currentTarget.style.borderColor = "transparent"}>
-              <span style={{ display: "flex", alignItems: "center", gap: 10 }}><FileText size={16} color="var(--accent)" /> Scan new document</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 10 }}><FileText size={16} color="var(--accent)" /> {t("scanNewDocumentHome")}</span>
             </Link>
             <Link href="/history" style={{ display: "block", padding: 16, background: "var(--surface-2)", borderRadius: "var(--radius-md)", textDecoration: "none", color: "var(--text-1)", fontWeight: 600, fontSize: 14, border: "1px solid transparent", transition: "border 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "var(--border-lit)"} onMouseLeave={e => e.currentTarget.style.borderColor = "transparent"}>
-              <span style={{ display: "flex", alignItems: "center", gap: 10 }}><Clock size={16} color="var(--accent-2)" /> View history</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 10 }}><Clock size={16} color="var(--accent-2)" /> {t("viewHistoryHome")}</span>
             </Link>
           </div>
         </div>
