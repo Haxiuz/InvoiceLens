@@ -8,7 +8,51 @@ import { prisma } from "@/lib/prisma";
 export const maxDuration = 30;
 
 const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY || "",
+  apiKey: "DUMMY_KEY", // Satisfies SDK initialization validation
+  fetch: async (url, options) => {
+    // 1. Load all available keys from the new multi-key environment variable
+    const keysString = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || "";
+    const apiKeys = keysString.split(",").map(k => k.trim()).filter(Boolean);
+    
+    if (apiKeys.length === 0) {
+      throw new Error("No Gemini API keys found in environment variables.");
+    }
+
+    // 2. Randomize starting point for load balancing (Pseudo Round-Robin)
+    const startIndex = Math.floor(Math.random() * apiKeys.length);
+    let lastResponse;
+
+    // 3. Loop through the keys until one succeeds
+    for (let i = 0; i < apiKeys.length; i++) {
+      const keyIndex = (startIndex + i) % apiKeys.length;
+      const apiKey = apiKeys[keyIndex];
+
+      // Clone headers and silently inject the rotated key
+      const headers = new Headers(options?.headers);
+      headers.set("x-goog-api-key", apiKey);
+
+      // Execute the actual request to Google's servers
+      lastResponse = await fetch(url, { ...options, headers });
+
+      if (lastResponse.ok) {
+        console.log(`[Gemini Rotation] Successfully used key pool index: ${keyIndex}`);
+        return lastResponse;
+      }
+
+      // If we hit a Rate Limit (429), Quota Exceeded (403), or Invalid Key (401), we rotate!
+      if ([429, 403, 401].includes(lastResponse.status)) {
+        console.warn(`[Gemini Rotation] Key at index ${keyIndex} exhausted/failed (Status ${lastResponse.status}). Rotating to next key...`);
+        try { await lastResponse.text(); } catch(e) {} // Clear unread socket buffer
+        continue;
+      }
+
+      // If it's a 400 Bad Request, the payload itself is broken, so abort rotating
+      return lastResponse;
+    }
+
+    // If ALL keys are exhausted or broken, return the final response back to the SDK
+    return lastResponse as Response;
+  }
 });
 
 export async function POST(req: Request) {
